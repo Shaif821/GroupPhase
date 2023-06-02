@@ -6,6 +6,7 @@ import java.util.Date
 
 interface SimulationRepository {
     fun getAllSimulation(): Flow<List<Simulation>>
+    fun getSimulationById(id: Int): Flow<Simulation>
     fun getSimulationByDate(date: Date): Flow<List<Simulation>>
     fun getSimulationByWeek(startDate: Date, endDate: Date): Flow<List<Simulation>>
     fun insertSimulation(simulation: Simulation)

@@ -14,6 +14,10 @@ class SimulationRepositoryImpl @Inject constructor(
         return simulationDao.getAllSimulations()
     }
 
+    override fun getSimulationById(id: Int): Flow<Simulation> {
+        return simulationDao.getSimulationById(id)
+    }
+
     override fun getSimulationByDate(date: Date): Flow<List<Simulation>> {
         return simulationDao.getSimulationByDate(date)
     }
