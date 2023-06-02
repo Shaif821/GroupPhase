@@ -1,4 +1,4 @@
-package com.example.groupphase.ui.theme
+package com.example.groupphase.presentation.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
