@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.example.groupphase.domain.model.Team
 
 @Composable
-fun TeamCard(team: Team) {
+fun TeamCard(team: Team, strength: Double) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     Card(
@@ -78,7 +78,16 @@ fun TeamCard(team: Team) {
                         .fillMaxHeight()
                         .padding(end = 10.dp),
                     verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.End,
                 ) {
+                    Text(
+                        text = "Strength: $strength",
+                        style = MaterialTheme.typography.bodySmall
+                            .copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            ),
+                    )
                     Text(
                         text = team.homeTown,
                         style = MaterialTheme.typography.bodySmall

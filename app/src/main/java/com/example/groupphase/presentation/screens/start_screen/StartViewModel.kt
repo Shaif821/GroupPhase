@@ -78,4 +78,14 @@ class StartViewModel @Inject constructor(
             }
         }.launchIn(ioScope)
     }
-}
+
+    fun calculateTotalStrength(team: Team) : Double {
+        var totalScore = 0.0
+        team.players.forEach { player ->
+            totalScore += player.strength
+        }
+
+        //round to 1 decimal
+        return (totalScore * 10.0).toInt() / 10.0
+    }
+ }

@@ -2,12 +2,13 @@ package com.example.groupphase.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
+import java.time.LocalDate
 
 @Entity(tableName = "simulation_table")
 data class Simulation(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
+    val rounds: List<Round>,
     val results: List<Result>,
-    val date: Date,
+    val date: LocalDate
 )

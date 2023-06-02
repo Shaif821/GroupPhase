@@ -1,6 +1,7 @@
 package com.example.groupphase.domain.model
 
 import androidx.room.Entity
+import java.time.LocalDate
 import java.util.Date
 
 @Entity
@@ -15,5 +16,5 @@ data class Result(
     val goalsAgainst: Int,
     val goalDifference: Int,
     val points: Int,
-    val date: Date,
+    val date: LocalDate
 )

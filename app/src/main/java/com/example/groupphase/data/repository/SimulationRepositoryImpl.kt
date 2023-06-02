@@ -4,7 +4,7 @@ import com.example.groupphase.data.data_source.dao.SimulationDAO
 import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.domain.repository.SimulationRepository
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
+import java.time.LocalDate
 import javax.inject.Inject
 
 class SimulationRepositoryImpl @Inject constructor(
@@ -18,11 +18,11 @@ class SimulationRepositoryImpl @Inject constructor(
         return simulationDao.getSimulationById(id)
     }
 
-    override fun getSimulationByDate(date: Date): Flow<List<Simulation>> {
+    override fun getSimulationByDate(date: LocalDate): Flow<List<Simulation>> {
         return simulationDao.getSimulationByDate(date)
     }
 
-    override fun getSimulationByWeek(startDate: Date, endDate: Date): Flow<List<Simulation>> {
+    override fun getSimulationByWeek(startDate: LocalDate, endDate: LocalDate): Flow<List<Simulation>> {
         return simulationDao.getSimulationByWeek(startDate, endDate)
     }
 

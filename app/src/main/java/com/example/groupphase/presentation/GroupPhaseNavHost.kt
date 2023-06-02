@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.groupphase.domain.model.Team
 import com.example.groupphase.presentation.screens.simulate_screen.SimulateScreen
 import com.example.groupphase.presentation.screens.start_screen.StartScreen
 
@@ -20,9 +21,10 @@ fun GroupPhaseNavHost(
         navController = navController,
         startDestination =  startDestination
     ) {
+
         composable("start") {
             StartScreen(
-                onNavigateSimulate = { navController.navigate("simulate") },
+                onNavigateSimulate = {  navController.navigate("simulate") },
             )
         }
         composable("simulate") {

@@ -6,6 +6,7 @@ import com.example.groupphase.domain.repository.SimulationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import java.time.LocalDate
 import java.util.Date
 import javax.inject.Singleton
 
@@ -13,7 +14,7 @@ import javax.inject.Singleton
 class GetSimulationByDateUseCase(
     private val simulateRepository: SimulationRepository
 ) {
-    operator fun invoke(date: Date): Flow<Resource<List<Simulation>>> = flow {
+    operator fun invoke(date: LocalDate): Flow<Resource<List<Simulation>>> = flow {
         try {
             emit(Resource.Loading())
             val simulationList = simulateRepository.getSimulationByDate(date).first()

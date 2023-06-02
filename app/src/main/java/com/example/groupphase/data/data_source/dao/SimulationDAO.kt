@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.groupphase.domain.model.Simulation
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import java.util.Date
 
 @Dao
@@ -18,10 +19,10 @@ interface SimulationDAO {
     fun getSimulationById(id: Int): Flow<Simulation>
 
     @Query("SELECT * FROM simulation_table WHERE date = :date")
-    fun getSimulationByDate(date: Date): Flow<List<Simulation>>
+    fun getSimulationByDate(date: LocalDate): Flow<List<Simulation>>
 
     @Query("SELECT * FROM simulation_table WHERE date BETWEEN :startDate AND :endDate")
-    fun getSimulationByWeek(startDate: Date, endDate: Date): Flow<List<Simulation>>
+    fun getSimulationByWeek(startDate: LocalDate, endDate: LocalDate): Flow<List<Simulation>>
 
     @Insert
     fun insertSimulation(simulation: Simulation)

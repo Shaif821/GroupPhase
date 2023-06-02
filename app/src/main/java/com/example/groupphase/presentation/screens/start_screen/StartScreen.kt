@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.groupphase.domain.model.Team
 import com.example.groupphase.presentation.components.TeamCard
 
 @Composable
@@ -46,10 +47,12 @@ fun StartScreen(
             if (state.teams.isNotEmpty()) {
                 val teams = state.teams // Lokale variabele voor stabiele teams
                 teams.forEach { team ->
-                    TeamCard(team)
+                    TeamCard(team, viewModel.calculateTotalStrength(team))
                 }
                 Button(
-                    onClick = { onNavigateSimulate() },
+                    onClick = {
+                        onNavigateSimulate()
+                    },
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .height(48.dp),
