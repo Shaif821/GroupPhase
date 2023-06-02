@@ -8,6 +8,7 @@ data class Team(
     @PrimaryKey(autoGenerate = false)
     val id: Int,
     val name: String,
+    val homeTown: String,
     val players: List<Player>,
 )
 
