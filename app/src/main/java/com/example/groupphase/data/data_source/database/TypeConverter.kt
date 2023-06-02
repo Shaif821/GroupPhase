@@ -1,18 +1,31 @@
 package com.example.groupphase.data.data_source.database
 
 import androidx.room.TypeConverter
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
+import com.example.groupphase.domain.model.Result
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.util.Date
 
 class TypeConverter {
     @TypeConverter
-    fun fromTimestamp(value: Long?): LocalDate? {
-        return value?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() }
+    fun fromString(value: String): List<Result> {
+        val listType = object : TypeToken<List<Result>>() {}.type
+
+        return Gson().fromJson(value, listType)
     }
 
     @TypeConverter
-    fun dateToTimestamp(date: LocalDate?): Long? {
-        return date?.atStartOfDay(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
+    fun toString(list: List<Result>): String {
+        return Gson().toJson(list)
+    }
+
+    @TypeConverter
+    fun fromDate(date: Date): Long {
+        return date.time
+    }
+
+    @TypeConverter
+    fun toDate(timestamp: Long): Date {
+        return Date(timestamp)
     }
 }
