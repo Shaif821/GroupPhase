@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Player
 import com.example.groupphase.domain.model.Result
+import com.example.groupphase.domain.model.Round
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.time.LocalDate
@@ -60,5 +61,16 @@ class TypeConverter {
     fun toMatchList(matchesJson: String): List<Match> {
         val listType = object : TypeToken<List<Match>>() {}.type
         return Gson().fromJson(matchesJson, listType)
+    }
+
+    @TypeConverter
+    fun fromRoundList(rounds: List<Round>): String {
+        return Gson().toJson(rounds)
+    }
+
+    @TypeConverter
+    fun toRoundList(roundsJson: String): List<Round> {
+        val listType = object : TypeToken<List<Round>>() {}.type
+        return Gson().fromJson(roundsJson, listType)
     }
 }

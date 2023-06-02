@@ -29,6 +29,7 @@ import com.example.groupphase.domain.use_case.player_use_cases.GetPlayersByStren
 import com.example.groupphase.domain.use_case.player_use_cases.GetPlayersByTeamUseCase
 import com.example.groupphase.domain.use_case.player_use_cases.InsertPlayerUseCase
 import com.example.groupphase.domain.use_case.player_use_cases.UpdatePlayerUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.UpdateSimulationUseCase
 import com.example.groupphase.domain.use_case.team_use_cases.DeleteTeamUseCase
 import com.example.groupphase.domain.use_case.team_use_cases.GetAllTeamsUseCase
@@ -106,7 +107,8 @@ object AppModule {
             getAllSimulationUseCase = GetAllSimulationUseCase(simulationRepository),
             getSimulationByDateUseCase = GetSimulationByDateUseCase(simulationRepository),
             getSimulationByWeekUseCase = GetSimulationByWeekUseCase(simulationRepository),
-            getSimulationById = GetSimulationByIdUseCase(simulationRepository),
+            getSimulationByIdUseCase = GetSimulationByIdUseCase(simulationRepository),
+            determineMatchesOrderUseCase = DetermineMatchesOrderUseCase(simulationRepository),
         )
     }
 

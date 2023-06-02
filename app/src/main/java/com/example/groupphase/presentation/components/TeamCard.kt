@@ -81,7 +81,7 @@ fun TeamCard(team: Team, strength: Double) {
                     horizontalAlignment = Alignment.End,
                 ) {
                     Text(
-                        text = "Strength: $strength",
+                        text = "⭐ $strength",
                         style = MaterialTheme.typography.bodySmall
                             .copy(
                                 fontWeight = FontWeight.Bold,

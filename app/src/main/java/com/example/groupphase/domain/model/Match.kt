@@ -6,8 +6,6 @@ import java.util.Date
 
 @Entity(tableName = "match_table")
 data class Match(
-    val home: Team,
-    val away: Team,
-    val score: List<Score>,
-    val date: LocalDate
+    var home: Pair<Team, Int>,
+    var away: Pair<Team, Int>,
 )
