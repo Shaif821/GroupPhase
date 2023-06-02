@@ -15,7 +15,7 @@ class GetAllTeamsUseCase(
     operator fun invoke() : Flow<Resource<List<Team>>> = flow {
         try {
             emit(Resource.Loading())
-            val teams = matchRepository.getAllTeams().first()
+            val teams = teamRepository.getAllTeams().first()
             emit(Resource.Success(teams))
         } catch (e: Exception) {
             emit(Resource.Error("The following error occurred while retrieving the teams: ${e.message}"))
