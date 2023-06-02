@@ -3,6 +3,7 @@ package com.example.groupphase.presentation.screens.start_screen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,17 +37,26 @@ fun StartScreen(
             fontSize = 32.sp,
             modifier = Modifier.padding(top = 32.dp)
         )
-
-        if(state.teams.isNotEmpty()) {
-            state.teams.forEach { team ->
-                TeamCard(team)
-            }
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        Spacer(modifier = Modifier.height(32.dp))
+        Column(
+            modifier = Modifier.fillMaxSize().height(400.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (state.teams.isNotEmpty()) {
+                val teams = state.teams // Lokale variabele voor stabiele teams
+                teams.forEach { team ->
+                    TeamCard(team)
+                }
+                Button(
+                    onClick = { onNavigateSimulate() },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .height(48.dp),
+                ) {
+                    Text(text = "Start Simulation")
+                }
+            } else {
                 Text(
                     text = "No teams found...",
                     fontSize = 16.sp,
@@ -62,5 +72,6 @@ fun StartScreen(
                 }
             }
         }
+
     }
 }

@@ -9,6 +9,7 @@ data class SimulationState(
     val success: Boolean = false,
     val simulationList: List<Simulation> = emptyList(),
     val currentSimulation: Simulation? = null,
+    val message: String,
 )
 
 enum class SimulationLoadingState {
