@@ -1,4 +1,4 @@
-package com.example.groupphase.presentation.screens
+package com.example.groupphase.presentation.screens.start_screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,13 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun SimulateScreen(
-    onNavigateStart: () -> Unit,
+fun StartScreen(
+    onNavigateSimulate: () -> Unit,
 ) {
+
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(text = "Simulate Screen")
+        Text(text = "Start Screen")
     }
 }

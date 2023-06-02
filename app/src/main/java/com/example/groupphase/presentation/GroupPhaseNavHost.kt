@@ -6,8 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.groupphase.presentation.screens.SimulateScreen
-import com.example.groupphase.presentation.screens.StartScreen
+import com.example.groupphase.presentation.screens.simulate_screen.SimulateScreen
+import com.example.groupphase.presentation.screens.start_screen.StartScreen
 
 @Composable
 fun GroupPhaseNavHost(

@@ -1,5 +1,6 @@
 package com.example.groupphase.domain.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -7,6 +8,7 @@ import androidx.room.PrimaryKey
 data class Player(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
+    @ColumnInfo(name = "team_id") val teamId: Int,
     val name: String,
     val strength: Double,
 )

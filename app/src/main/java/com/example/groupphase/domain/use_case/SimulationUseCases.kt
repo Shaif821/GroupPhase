@@ -1,0 +1,19 @@
+package com.example.groupphase.domain.use_case
+
+import com.example.groupphase.domain.use_case.simulation_use_cases.DeleteSimulationUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.GetAllSimulationUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.GetSimulationByDateUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.GetSimulationByIdUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.GetSimulationByWeekUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.InsertSimulationUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.UpdateSimulationUseCase
+
+data class SimulationUseCases(
+    val deleteSimulationUseCase: DeleteSimulationUseCase,
+    val insertSimulationUseCase: InsertSimulationUseCase,
+    val updateSimulationUseCase: UpdateSimulationUseCase,
+    val getAllSimulationUseCase: GetAllSimulationUseCase,
+    val getSimulationByDateUseCase: GetSimulationByDateUseCase,
+    val getSimulationByWeekUseCase: GetSimulationByWeekUseCase,
+    val getSimulationById: GetSimulationByIdUseCase
+)
