@@ -3,9 +3,7 @@ package com.example.groupphase.domain.use_case.simulation_use_cases
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Round
-import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.domain.model.Team
-import com.example.groupphase.domain.repository.SimulationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
@@ -13,37 +11,64 @@ import javax.inject.Singleton
 
 // Determine the order which the teams will play against eah other. A total of 3 rounds will be played
 @Singleton
-class DetermineMatchesOrderUseCase() {
-    operator fun invoke(teamList: List<Team>) : Flow<Resource<List<Round>>> = flow {
+class DetermineMatchesOrderUseCase {
+    operator fun invoke(teamList: List<Team>): Flow<Resource<List<Round>>> = flow {
         try {
             emit(Resource.Loading())
 
+            teamList.shuffled() // Shuffle the teams, so the order is random
             val teams = teamList.toMutableList()
             val rounds = mutableListOf<Round>()
 
-            // total rounds is 3.
-            for (roundIndex in 0 until teams.size - 1) {
+            // Total rounds to be played
+            val numRounds = 3
+
+            // Each round has 2 matches
+            for (roundNum in 1..numRounds) {
                 val matches = mutableListOf<Match>()
 
-                // The inner loop adds a match to the current round
-                for (matchIndex in 0 until teams.size / 2) {
-                    val homeTeam = Pair(teams[matchIndex], 0)
-                    val awayTeam = Pair(teams[teams.size - 1 - matchIndex], 0)
+                // Make copy of teams list
+                val teamsCopy = teams.toMutableList()
 
-                    val match = Match(homeTeam, awayTeam)
-                    matches.add(match)
+                // keep track of the played matches (to prevent duplicate matches)
+                val playedMatches = mutableSetOf<Pair<Team, Team>>()
+
+                while (teamsCopy.isNotEmpty()) {
+                    val home = teamsCopy.first()
+                    teamsCopy.removeAt(0)
+
+                    // Find opponent for the home team
+                    val away = findOpponent(home, teamsCopy, playedMatches)
+
+                    if (away != null) {
+                        teamsCopy.remove(away)
+                        val match = Match(Pair(home, 0), Pair(away, 0))
+                        matches.add(match)
+
+                        // add the match to the played matches
+                        playedMatches.add(Pair(home, away))
+                    }
                 }
 
-                val round = Round(matches, LocalDate.now())
-                rounds.add(round)
+                rounds.add(Round(matches, LocalDate.now()))
 
-                // Switch the first team with the last team in the list. This prevents a team from playing against the same team twice
-                teams.add(teams.size - 1, teams.removeAt(0))
+                // Rotate the teams
+                if (roundNum < numRounds) {
+                    teams.add(teams.removeAt(1))
+                }
             }
-
             emit(Resource.Success(rounds))
         } catch (e: Exception) {
-            emit(Resource.Error("The following error occurred while determining the matches order: ${e.message}"))
+            emit(Resource.Error("Er is een fout opgetreden bij het bepalen van de wedstrijdvolgorde: ${e.message}"))
         }
+    }
+
+    private fun findOpponent(team: Team, teams: MutableList<Team>, playedMatches: Set<Pair<Team, Team>>): Team? {
+        val potentialOpponents = teams.filter { otherTeam ->
+            !playedMatches.contains(Pair(team, otherTeam)) &&
+                    !playedMatches.contains(Pair(otherTeam, team))
+        }
+
+        return potentialOpponents.randomOrNull()
     }
 }

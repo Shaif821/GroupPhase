@@ -14,6 +14,7 @@ data class SimulationState(
     val matches: List<Match> = emptyList(),
     val rounds: List<Round> = emptyList(),
     val teams : List<Team> = emptyList(),
+    val currentRound: Int = 1,
 )
 
 

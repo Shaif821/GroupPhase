@@ -108,7 +108,7 @@ object AppModule {
             getSimulationByDateUseCase = GetSimulationByDateUseCase(simulationRepository),
             getSimulationByWeekUseCase = GetSimulationByWeekUseCase(simulationRepository),
             getSimulationByIdUseCase = GetSimulationByIdUseCase(simulationRepository),
-            determineMatchesOrderUseCase = DetermineMatchesOrderUseCase(simulationRepository),
+            determineMatchesOrderUseCase = DetermineMatchesOrderUseCase(),
         )
     }
 
