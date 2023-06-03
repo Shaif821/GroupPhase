@@ -32,6 +32,7 @@ class SimulateViewModel @Inject constructor(
                         rounds = result.data ?: listOf()
                     )
                 }
+
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -43,6 +44,52 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun startMatch(match: Match) {
+        // Get the index of the match. This will be used to update the match later on
+        _state.value = state.value.copy(isLoading = true)
+
+        simulationUseCases.simulateMatchUseCase(match).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    val matchIndex = state.value.rounds[state.value.rounds.size - 1].match.indexOf(match)
+                    val updatedMatch = result.data ?: match
+
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        success = true,
+                        matches = state.value.matches.toMutableList().apply {
+                            set(matchIndex, updatedMatch)
+                        }
+                    )
+                }
+                is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
+                is Resource.Error -> {
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "Something went wrong..."
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun setTeamName(match: Match, sort: Boolean): String {
+        val name = if(sort) match.home.first.name else match.away.first.name
+
+        if(match.home.second == match.away.second && sort) {
+            return name
+        }
+        return if(match.home.second > match.away.second && sort) {
+            "$name⚽"
+        }else if(match.home.second < match.away.second && sort) {
+            "$name⚽"
+        }
+        else name
+    }
+
+    fun getCurrentRound(): Round {
+        return state.value.rounds[state.value.rounds.size - 1]
+    }
 
     fun setMatch(match: Match) {
         _state.value = state.value.copy(

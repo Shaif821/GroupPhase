@@ -9,12 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.groupphase.presentation.components.MatchCard
 import com.example.groupphase.presentation.screens.start_screen.StartViewModel
 
 @Composable
@@ -23,9 +23,10 @@ fun SimulateScreen(
     viewModel: SimulateViewModel = hiltViewModel(),
     startViewModel: StartViewModel = hiltViewModel(),
 ) {
-    val state = viewModel.state.collectAsState().value
-    val round = state.currentRound
     val teams = startViewModel.state.collectAsState().value
+
+    val state = viewModel.state.collectAsState().value
+    val rounds = state.rounds
 
     LaunchedEffect(teams) {
         if(teams.teams.isNotEmpty()) {
@@ -46,24 +47,20 @@ fun SimulateScreen(
             fontSize = 32.sp,
             modifier = Modifier.padding(top = 32.dp)
         )
-        Text(
-            text = "Round #$round",
-            fontSize = 24.sp,
-            modifier = Modifier.padding(top = 32.dp)
-        )
-        state.rounds.forEach { round ->
-            round.match.forEach {
-                Text(
-                    text = "${it.home.first.name} vs ${it.away.first.name}",
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(top = 32.dp)
-                )
-            }
+        if(state.rounds.isNotEmpty()) {
+            val currentRound = rounds[state.currentRound]
+
+            Text(
+                text = "Round #${rounds.indexOf(currentRound) + 1}",
+                fontSize = 24.sp,
+                modifier = Modifier.padding(top = 32.dp)
+            )
+            currentRound.match.forEach { MatchCard(match = it, viewModel::setTeamName) }
+            Text(
+                text = state.error,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(top = 32.dp)
+            )
         }
-        Text(
-            text = state.error,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(top = 32.dp)
-        )
     }
 }

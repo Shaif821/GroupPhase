@@ -7,6 +7,7 @@ import com.example.groupphase.domain.use_case.simulation_use_cases.GetSimulation
 import com.example.groupphase.domain.use_case.simulation_use_cases.GetSimulationByIdUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.GetSimulationByWeekUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.InsertSimulationUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.SimulateMatchUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.UpdateSimulationUseCase
 
 data class SimulationUseCases(
@@ -20,4 +21,5 @@ data class SimulationUseCases(
     val getSimulationByIdUseCase: GetSimulationByIdUseCase,
     // Complex use case
     val determineMatchesOrderUseCase: DetermineMatchesOrderUseCase,
+    val simulateMatchUseCase: SimulateMatchUseCase
 )

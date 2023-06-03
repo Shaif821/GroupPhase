@@ -16,7 +16,7 @@ class DetermineMatchesOrderUseCase {
         try {
             emit(Resource.Loading())
 
-            teamList.shuffled() // Shuffle the teams, so the order is random
+            teamList.shuffled() // Shuffle the teams, so the order is random. TODO : not working :(
             val teams = teamList.toMutableList()
             val rounds = mutableListOf<Round>()
 
