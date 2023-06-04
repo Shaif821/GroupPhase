@@ -6,7 +6,8 @@ import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
-import com.example.groupphase.domain.use_case.SimulationUseCases
+import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.SimulateMatchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SimulateViewModel @Inject constructor(
-    private val simulationUseCases: SimulationUseCases
+    private val determineMatchesOrderUseCase: DetermineMatchesOrderUseCase,
+    private val simulateMatchUseCase: SimulateMatchUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SimulationState())
@@ -23,7 +25,7 @@ class SimulateViewModel @Inject constructor(
 
     fun determineMatches() {
         _state.value = state.value.copy(isLoading = true)
-        simulationUseCases.determineMatchesOrderUseCase(state.value.teams).onEach { result ->
+        determineMatchesOrderUseCase(state.value.teams).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _state.value = state.value.copy(
@@ -48,7 +50,7 @@ class SimulateViewModel @Inject constructor(
         // Get the index of the match. This will be used to update the match later on
         _state.value = state.value.copy(isLoading = true)
 
-        simulationUseCases.simulateMatchUseCase(match).onEach { result ->
+        simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     val matchIndex = state.value.rounds[state.value.rounds.size - 1].match.indexOf(match)

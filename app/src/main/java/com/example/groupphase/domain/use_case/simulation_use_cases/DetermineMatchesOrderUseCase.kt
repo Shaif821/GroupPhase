@@ -7,11 +7,11 @@ import com.example.groupphase.domain.model.Team
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
+import javax.inject.Inject
 import javax.inject.Singleton
 
 // Determine the order which the teams will play against eah other. A total of 3 rounds will be played
-@Singleton
-class DetermineMatchesOrderUseCase {
+class DetermineMatchesOrderUseCase @Inject constructor() {
     operator fun invoke(teamList: List<Team>): Flow<Resource<List<Round>>> = flow {
         try {
             emit(Resource.Loading())

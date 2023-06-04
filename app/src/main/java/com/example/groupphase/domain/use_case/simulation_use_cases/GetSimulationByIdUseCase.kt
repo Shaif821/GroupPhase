@@ -6,10 +6,10 @@ import com.example.groupphase.domain.repository.SimulationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class GetSimulationByIdUseCase(
+class GetSimulationByIdUseCase @Inject constructor(
     private val simulateRepository: SimulationRepository
 ) {
     operator fun invoke(id: Int): Flow<Resource<Simulation>> = flow {

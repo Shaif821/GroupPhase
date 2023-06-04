@@ -5,10 +5,10 @@ import com.example.groupphase.domain.model.Team
 import com.example.groupphase.domain.repository.TeamRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class UpdateTeamUseCase(
+class UpdateTeamUseCase @Inject constructor(
     private val teamRepository: TeamRepository
 ) {
     operator fun invoke(team: Team) : Flow<Resource<Boolean>> = flow {

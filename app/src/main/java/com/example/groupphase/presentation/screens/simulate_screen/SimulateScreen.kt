@@ -29,7 +29,7 @@ fun SimulateScreen(
     val rounds = state.rounds
 
     LaunchedEffect(teams) {
-        if(teams.teams.isNotEmpty()) {
+        if (teams.teams.isNotEmpty()) {
             viewModel.setTeams(teams.teams)
             viewModel.determineMatches()
         }
@@ -47,7 +47,7 @@ fun SimulateScreen(
             fontSize = 32.sp,
             modifier = Modifier.padding(top = 32.dp)
         )
-        if(state.rounds.isNotEmpty()) {
+        if (state.rounds.isNotEmpty()) {
             val currentRound = rounds[state.currentRound]
 
             Text(
@@ -55,7 +55,13 @@ fun SimulateScreen(
                 fontSize = 24.sp,
                 modifier = Modifier.padding(top = 32.dp)
             )
-            currentRound.match.forEach { MatchCard(match = it, viewModel::setTeamName) }
+            currentRound.match.forEach {
+                MatchCard(
+                    match = it,
+                    viewModel::setTeamName,
+                    viewModel::startMatch
+                )
+            }
             Text(
                 text = state.error,
                 fontSize = 24.sp,

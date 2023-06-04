@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +24,13 @@ import com.example.groupphase.domain.model.Match
 fun MatchCard(
     match: Match,
     teamName: (match: Match, sort: Boolean) -> String,
+    statMatch: (Match) -> Unit,
 ) {
+
+    LaunchedEffect(match) {
+        statMatch(match)
+    }
+
     val homeName =  teamName(match, true).uppercase()
     val awayName =  teamName(match, false).uppercase()
 

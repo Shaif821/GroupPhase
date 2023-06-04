@@ -5,10 +5,10 @@ import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.domain.repository.SimulationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class UpdateSimulationUseCase(
+class UpdateSimulationUseCase @Inject constructor(
     private val simulateRepository: SimulationRepository
 ) {
     operator fun invoke(simulation: Simulation) : Flow<Resource<Boolean>> = flow {

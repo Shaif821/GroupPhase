@@ -6,10 +6,10 @@ import com.example.groupphase.domain.repository.TeamRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class GetAllTeamsUseCase(
+class GetAllTeamsUseCase @Inject constructor(
     private val teamRepository: TeamRepository
 ) {
     operator fun invoke() : Flow<Resource<List<Team>>> = flow {

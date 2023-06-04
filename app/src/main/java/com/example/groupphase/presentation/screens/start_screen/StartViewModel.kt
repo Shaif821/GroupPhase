@@ -3,7 +3,8 @@ package com.example.groupphase.presentation.screens.start_screen
 import androidx.lifecycle.ViewModel
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Team
-import com.example.groupphase.domain.use_case.TeamUseCases
+import com.example.groupphase.domain.use_case.team_use_cases.GetAllTeamsUseCase
+import com.example.groupphase.domain.use_case.team_use_cases.InsertTeamUseCase
 import com.example.groupphase.utils.MockData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StartViewModel @Inject constructor(
-    private val teamUseCases: TeamUseCases
+    private val getAllTeamsUseCase : GetAllTeamsUseCase,
+    private val insertTeamUseCase: InsertTeamUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow<StartState>(StartState())
     val state = _state.asStateFlow()
@@ -41,7 +43,7 @@ class StartViewModel @Inject constructor(
 
     private fun getTeams() {
         _state.value = StartState(isLoading = true)
-        teamUseCases.getAllTeamsUseCase().onEach { result ->
+        getAllTeamsUseCase().onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     if(result.data.isNullOrEmpty()) {
@@ -64,7 +66,7 @@ class StartViewModel @Inject constructor(
 
     private fun insertTeam(team: Team) {
         _state.value = state.value.copy(isLoading = true)
-        teamUseCases.insertTeamUseCase(team).onEach { result ->
+        insertTeamUseCase(team).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _state.value = state.value.copy(

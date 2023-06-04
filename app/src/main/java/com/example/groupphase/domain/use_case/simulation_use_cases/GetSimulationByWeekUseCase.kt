@@ -7,11 +7,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
-import java.util.Date
+import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class GetSimulationByWeekUseCase(
+class GetSimulationByWeekUseCase @Inject constructor(
     private val simulateRepository: SimulationRepository
 ) {
     operator fun invoke(startDate: LocalDate, endDate: LocalDate): Flow<Resource<List<Simulation>>> = flow {

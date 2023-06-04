@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import java.util.Date
+import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class GetSimulationByDateUseCase(
+class GetSimulationByDateUseCase @Inject constructor(
     private val simulateRepository: SimulationRepository
 ) {
     operator fun invoke(date: LocalDate): Flow<Resource<List<Simulation>>> = flow {
