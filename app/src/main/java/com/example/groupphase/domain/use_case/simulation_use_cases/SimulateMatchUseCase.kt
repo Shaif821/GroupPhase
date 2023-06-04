@@ -10,29 +10,40 @@ import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.random.Random
 
 // Determine the order which the teams will play against eah other. A total of 3 rounds will be played
 class SimulateMatchUseCase @Inject constructor() {
-    operator fun invoke(match: Match): Flow<Resource<Match>> = flow {
-        try {
-            emit(Resource.Loading())
+    operator fun invoke(
+        match: Match, rounds: List<Round>,
+        roundIndex: Int
+    ): Flow<Resource<List<Round>>> = flow {
+        emit(Resource.Loading())
 
+        val roundsCopy = rounds.toMutableList()
+
+        val currentRound = rounds[roundIndex]
+        val matchIndex = currentRound.match.indexOfFirst { !it.played }
+
+        if (matchIndex != -1) {
             val homeStrength = calculatStrenght(match.home.first.players)
             val awayStrength = calculatStrenght(match.away.first.players)
 
-            // calculate the score. The score is based on the strength of the team. But is randomized a bit
-            // TODO: make the randomization more realistic (and make it actually work)
+            val homeScore = (homeStrength * (0.9 + 0.2 * Random.nextFloat())).toInt()
+            val awayScore = (awayStrength * (0.9 + 0.2 * Random.nextFloat())).toInt()
 
-            // update the score in the temp match (since this is an invoke function, the match will be updated in the tempMatch)
-            val updatedMatch = match
-//                .copy(
-//                    home = match.home.copy(second = homeStrength),
-//                    away = match.away.copy(second = awayStrength),
-//                )
-            emit(Resource.Success(updatedMatch))
-        } catch (e: Exception) {
-            emit(Resource.Error("The following went wrong while simulating the match: ${e.message}"))
+            val updatedMatchList = currentRound.match.toMutableList()
+            updatedMatchList[matchIndex] = match.copy(
+                home = match.home.copy(second = homeScore),
+                away = match.away.copy(second = awayScore),
+                played = true
+            )
+
+            val updatedRound = currentRound.copy(match = updatedMatchList)
+            roundsCopy[roundIndex] = updatedRound
         }
+
+        emit(Resource.Success(roundsCopy.toList()))
     }
 
     private fun calculatStrenght(players: List<Player>): Int {

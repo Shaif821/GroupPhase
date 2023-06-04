@@ -8,4 +8,5 @@ import java.util.Date
 data class Match(
     var home: Pair<Team, Int>,
     var away: Pair<Team, Int>,
+    var played : Boolean = false,
 )

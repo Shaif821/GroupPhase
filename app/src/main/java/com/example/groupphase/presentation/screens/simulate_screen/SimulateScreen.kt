@@ -31,6 +31,7 @@ fun SimulateScreen(
     LaunchedEffect(teams) {
         if (teams.teams.isNotEmpty()) {
             viewModel.setTeams(teams.teams)
+            viewModel.setCurrentRound(0)
             viewModel.determineMatches()
         }
     }

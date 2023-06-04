@@ -1,5 +1,6 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.groupphase.common.Resource
@@ -47,21 +48,20 @@ class SimulateViewModel @Inject constructor(
     }
 
     fun startMatch(match: Match) {
+        // Get the current round and match
+        val rounds = state.value.rounds.toMutableList()
+        val currentRoundIndex = state.value.currentRound
+
         // Get the index of the match. This will be used to update the match later on
         _state.value = state.value.copy(isLoading = true)
 
-        simulateMatchUseCase(match).onEach { result ->
+        simulateMatchUseCase(match, rounds, currentRoundIndex).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    val matchIndex = state.value.rounds[state.value.rounds.size - 1].match.indexOf(match)
-                    val updatedMatch = result.data ?: match
-
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        matches = state.value.matches.toMutableList().apply {
-                            set(matchIndex, updatedMatch)
-                        }
+                        rounds = result.data ?: rounds
                     )
                 }
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -83,31 +83,22 @@ class SimulateViewModel @Inject constructor(
         }
         return if(match.home.second > match.away.second && sort) {
             "$name⚽"
-        }else if(match.home.second < match.away.second && sort) {
+        }else if(match.home.second < match.away.second && !sort) {
             "$name⚽"
         }
         else name
     }
 
-    fun getCurrentRound(): Round {
-        return state.value.rounds[state.value.rounds.size - 1]
-    }
-
-    fun setMatch(match: Match) {
-        _state.value = state.value.copy(
-            matches = state.value.matches + match
-        )
-    }
-
-    fun setRound(round: Round) {
-        _state.value = state.value.copy(
-            rounds = state.value.rounds + round
-        )
-    }
 
     fun setTeams(teams: List<Team>) {
         _state.value = state.value.copy(
             teams = teams
+        )
+    }
+
+    fun setCurrentRound(round: Int) {
+        _state.value = state.value.copy(
+            currentRound = round
         )
     }
 }
