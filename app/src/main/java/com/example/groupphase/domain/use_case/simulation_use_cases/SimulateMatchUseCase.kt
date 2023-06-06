@@ -7,9 +7,7 @@ import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.time.LocalDate
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.random.Random
 
 // Determine the order which the teams will play against eah other. A total of 3 rounds will be played
@@ -18,39 +16,77 @@ class SimulateMatchUseCase @Inject constructor() {
         match: Match, rounds: List<Round>,
         roundIndex: Int
     ): Flow<Resource<List<Round>>> = flow {
-        emit(Resource.Loading())
 
-        val roundsCopy = rounds.toMutableList()
+        try {
+            emit(Resource.Loading())
 
-        val currentRound = rounds[roundIndex]
-        val matchIndex = currentRound.match.indexOfFirst { !it.played }
+            val roundsCopy = rounds.toMutableList()
 
-        if (matchIndex != -1) {
-            val homeStrength = calculatStrenght(match.home.first.players)
-            val awayStrength = calculatStrenght(match.away.first.players)
+            val currentRound = rounds[roundIndex]
+            val matchIndex = currentRound.match.indexOfFirst { !it.played }
 
-            val homeScore = (homeStrength * (0.9 + 0.2 * Random.nextFloat())).toInt()
-            val awayScore = (awayStrength * (0.9 + 0.2 * Random.nextFloat())).toInt()
+            if (matchIndex != -1) {
+                val updatedMatchList = currentRound.match.toMutableList()
 
-            val updatedMatchList = currentRound.match.toMutableList()
-            updatedMatchList[matchIndex] = match.copy(
-                home = match.home.copy(second = homeScore),
-                away = match.away.copy(second = awayScore),
-                played = true
-            )
+                // randomize total goals, but keep it within a range of 0 and 6
+                val totalGoals = Random.nextInt(1, 6)
 
-            val updatedRound = currentRound.copy(match = updatedMatchList)
-            roundsCopy[roundIndex] = updatedRound
+                val playedMatch = calculateScore(totalGoals, match.home, match.away)
+
+                updatedMatchList[matchIndex] = match.copy(
+                    home = match.home.copy(second = playedMatch[0].second),
+                    away = match.away.copy(second = playedMatch[1].second),
+                    played = true
+                )
+
+                val updatedRound = currentRound.copy(match = updatedMatchList)
+                roundsCopy[roundIndex] = updatedRound
+
+                emit(Resource.Success(roundsCopy.toList()))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("The following error occurred while simulating the match $roundIndex: ${e.message}"))
         }
-
-        emit(Resource.Success(roundsCopy.toList()))
     }
 
-    private fun calculatStrenght(players: List<Player>): Int {
+    private fun calculateScore(
+        totalGoals: Int,
+        home: Pair<Team, Int>,
+        away: Pair<Team, Int>
+    ): List<Pair<Team, Int>> {
+        // based on the total goals, the team with the highest strength will get the most goals
+        val homeStrength = (calculatStrenght(home.first.players) * 10).toInt()
+        val awayStrength = (calculatStrenght(away.first.players) * 10).toInt()
+
+        var homeGoals = 0
+        var awayGoals = 0
+        var goalsToSpend = totalGoals
+
+        repeat(totalGoals) {
+            if (goalsToSpend > 0) {
+                val randomNumb = Random.nextInt(0, homeStrength + awayStrength)
+
+                if (randomNumb < homeStrength && homeStrength > 0) {
+                    homeGoals++
+                } else if (randomNumb < homeStrength + awayStrength && awayStrength > 0) {
+                    awayGoals++
+                }
+
+                goalsToSpend--
+            }
+        }
+
+        return listOf(
+            home.copy(second = homeGoals),
+            away.copy(second = awayGoals)
+        )
+    }
+
+    private fun calculatStrenght(players: List<Player>): Double {
         var strength = 0.0
         players.forEach { player ->
             strength += player.strength
         }
-        return strength.toInt()
+        return strength + 10
     }
 }

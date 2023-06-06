@@ -58,10 +58,14 @@ class SimulateViewModel @Inject constructor(
         simulateMatchUseCase(match, rounds, currentRoundIndex).onEach { result ->
             when (result) {
                 is Resource.Success -> {
+                    // index ends at 2
+                    val newIndex = if(currentRoundIndex == 2) 2 else currentRoundIndex + 1
+
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        rounds = result.data ?: rounds
+                        rounds = result.data ?: rounds,
+                        currentRound = newIndex
                     )
                 }
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -79,14 +83,14 @@ class SimulateViewModel @Inject constructor(
         val name = if(sort) match.home.first.name else match.away.first.name
 
         if(match.home.second == match.away.second && sort) {
-            return name
+            return "$name ❌"
         }
         return if(match.home.second > match.away.second && sort) {
             "$name⚽"
         }else if(match.home.second < match.away.second && !sort) {
             "$name⚽"
         }
-        else name
+        else "❌ $name"
     }
 
 
