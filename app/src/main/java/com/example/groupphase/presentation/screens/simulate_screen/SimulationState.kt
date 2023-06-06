@@ -1,6 +1,5 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
-import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.domain.model.Team
@@ -14,6 +13,7 @@ data class SimulationState(
     val rounds: List<Round> = emptyList(),
     val teams : List<Team> = emptyList(),
     val currentRound: Int = 0,
+    val isFinished : Boolean = false,
 )
 
 

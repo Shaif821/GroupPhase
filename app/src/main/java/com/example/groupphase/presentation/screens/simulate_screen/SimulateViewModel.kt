@@ -1,11 +1,9 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
-import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
 import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.SimulateMatchUseCase
@@ -59,15 +57,17 @@ class SimulateViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     // index ends at 2
-                    val newIndex = if(currentRoundIndex == 2) 2 else currentRoundIndex + 1
+                    val newIndex = if (currentRoundIndex == 2) 2 else currentRoundIndex + 1
 
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
                         rounds = result.data ?: rounds,
-                        currentRound = newIndex
+                        currentRound = newIndex,
+                        isFinished = canShowResult()
                     )
                 }
+
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -80,19 +80,30 @@ class SimulateViewModel @Inject constructor(
     }
 
     fun setTeamName(match: Match, sort: Boolean): String {
-        val name = if(sort) match.home.first.name else match.away.first.name
+        val name = if (sort) match.home.first.name else match.away.first.name
 
-        if(match.home.second == match.away.second && sort) {
+        if (match.home.second == match.away.second && sort) {
             return "$name ❌"
         }
-        return if(match.home.second > match.away.second && sort) {
+        return if (match.home.second > match.away.second && sort) {
             "$name⚽"
-        }else if(match.home.second < match.away.second && !sort) {
+        } else if (match.home.second < match.away.second && !sort) {
             "$name⚽"
-        }
-        else "❌ $name"
+        } else "❌ $name"
     }
 
+    private fun canShowResult(): Boolean {
+        var countedPlayedMatches = 2
+
+        state.value.rounds.forEach { round ->
+            round.match.forEach { match ->
+                if (match.played) {
+                    countedPlayedMatches++
+                }
+            }
+        }
+        return countedPlayedMatches == 5
+    }
 
     fun setTeams(teams: List<Team>) {
         _state.value = state.value.copy(
