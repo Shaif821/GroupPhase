@@ -20,11 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.presentation.components.MatchCard
 import com.example.groupphase.presentation.screens.start_screen.StartViewModel
 
@@ -37,7 +39,11 @@ fun SimulateScreen(
     val teams = startViewModel.state.collectAsState().value
     val state = viewModel.state.collectAsState().value
 
+    val isLoading = state.isLoading
+    val isDone = state.isSimulated
+
     val canContinue = state.isFinished
+    val buttonText = if (!isLoading) "Calculating...." else "Calculate scores"
 
     LaunchedEffect(teams) {
         if (teams.teams.isNotEmpty()) {
@@ -95,18 +101,28 @@ fun SimulateScreen(
                         )
                     }
                 }
-                if(canContinue) {
+                if(canContinue && !isDone) {
                     Button(
-                        onClick = {
-//                            viewModel.showResult()
-                        },
+                        enabled = isLoading,
+                        onClick = { viewModel.finishSimulation() },
                         modifier = Modifier
                             .padding(32.dp)
                             .height(48.dp),
                     ) {
-                        Text(text = "Show Result")
+                        Text(text = buttonText)
                     }
-                } else {
+                }
+                else if (isDone) {
+                    Button(
+                        onClick = { viewModel.finishSimulation() },
+                        modifier = Modifier
+                            .padding(32.dp)
+                            .height(48.dp),
+                    ) {
+                        Text(text = "Simulation is done! Check the scores")
+                    }
+                }
+                else {
                     Text(
                         text = state.error,
                         fontSize = 24.sp,

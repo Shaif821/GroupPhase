@@ -1,10 +1,12 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Team
+import com.example.groupphase.domain.use_case.simulation_use_cases.CalculateResultsUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.SimulateMatchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SimulateViewModel @Inject constructor(
     private val determineMatchesOrderUseCase: DetermineMatchesOrderUseCase,
-    private val simulateMatchUseCase: SimulateMatchUseCase
+    private val simulateMatchUseCase: SimulateMatchUseCase,
+    private val calculateResultsUseCase: CalculateResultsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SimulationState())
@@ -38,7 +41,7 @@ class SimulateViewModel @Inject constructor(
                 is Resource.Error -> {
                     _state.value = state.value.copy(
                         isLoading = false,
-                        error = result.message ?: "Something went wrong..."
+                        error = result.message ?: "Something went wrong.."
                     )
                 }
             }
@@ -78,6 +81,35 @@ class SimulateViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    fun finishSimulation() {
+        _state.value = state.value.copy(isLoading = true)
+
+        calculateResultsUseCase(state.value.rounds).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    val simulation = state.value.simulation.copy(
+                        rounds = state.value.rounds,
+                        results = result.data ?: listOf()
+                    )
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        success = true,
+                        simulation = simulation,
+                        isSimulated = true
+                    )
+                }
+                is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
+                is Resource.Error -> {
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "Something went wrong..."
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
 
     fun setTeamName(match: Match, sort: Boolean): String {
         val name = if (sort) match.home.first.name else match.away.first.name

@@ -6,7 +6,7 @@ import java.util.Date
 
 @Entity
 data class Result(
-    val position: Int,
+    var position: Int,
     val team: Team,
     val played: Int,
     val won: Int,

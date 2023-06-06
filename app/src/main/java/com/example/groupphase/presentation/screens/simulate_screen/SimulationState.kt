@@ -14,6 +14,7 @@ data class SimulationState(
     val teams : List<Team> = emptyList(),
     val currentRound: Int = 0,
     val isFinished : Boolean = false,
+    val isSimulated: Boolean = false
 )
 
 
