@@ -5,6 +5,7 @@ import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Player
 import com.example.groupphase.domain.model.Result
 import com.example.groupphase.domain.model.Round
+import com.example.groupphase.domain.model.Team
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.time.LocalDate
@@ -53,14 +54,14 @@ class TypeConverter {
     }
 
     @TypeConverter
-    fun fromMatchList(matches: List<Match>): String {
-        return Gson().toJson(matches)
+    fun fromTeamList(teams: List<Team>): String {
+        return Gson().toJson(teams)
     }
 
     @TypeConverter
-    fun toMatchList(matchesJson: String): List<Match> {
-        val listType = object : TypeToken<List<Match>>() {}.type
-        return Gson().fromJson(matchesJson, listType)
+    fun toTeamList(teamsJson: String): List<Team> {
+        val listType = object : TypeToken<List<Team>>() {}.type
+        return Gson().fromJson(teamsJson, listType)
     }
 
     @TypeConverter
