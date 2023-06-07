@@ -132,7 +132,6 @@ fun SimulateScreen(
                     }
                 }
             }
-            Text(text = event.toString())
         }
     }
 }
