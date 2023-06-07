@@ -3,6 +3,7 @@ package com.example.groupphase.presentation.screens.start_screen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import com.example.groupphase.utils.Helpers
 @Composable
 fun StartScreen(
     onNavigateSimulate: () -> Unit,
+    onNavigateResult: (String?) -> Unit,
     viewModel: StartViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsState().value
@@ -55,15 +57,26 @@ fun StartScreen(
                 teams.forEach { team ->
                     TeamCard(team, Helpers.calculateTotalStrength(team))
                 }
-                Button(
-                    onClick = {
-                        onNavigateSimulate()
-                    },
+                Row(
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .height(48.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text(text = "Start Simulation")
+                    Button(
+                        onClick = {
+                            onNavigateSimulate()
+                        },
+                    ) {
+                        Text(text = "Start Simulation")
+                    }
+                    Button(
+                        onClick = {
+                            onNavigateResult(null)
+                        },
+                    ) {
+                        Text(text = "Show simulations")
+                    }
                 }
             } else {
                 Text(
@@ -81,10 +94,6 @@ fun StartScreen(
                 }
             }
             Divider(modifier = Modifier.padding(top = 16.dp))
-            Text(text = "Simulations", fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
-            state.simulations.forEach {
-                SimulationCard(it)
-            }
             Text(
                 text = state.error,
                 fontSize = 32.sp,

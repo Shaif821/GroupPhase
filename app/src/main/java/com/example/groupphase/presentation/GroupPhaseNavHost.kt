@@ -27,6 +27,11 @@ fun GroupPhaseNavHost(
         composable("start") {
             StartScreen(
                 onNavigateSimulate = { navController.navigate("simulate") },
+                onNavigateResult = { id ->
+                    navController.navigate("result/${id ?: ""}") { // Standaardwaarde is een lege string als id null is
+                        popUpTo("simulate") { inclusive = true }
+                    }
+                },
             )
         }
         composable("simulate") {
@@ -39,7 +44,7 @@ fun GroupPhaseNavHost(
                 },
             )
         }
-        composable("result/{id}") { backStackEntry ->
+        composable("result/?id={id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")
 
             if (id == null) {

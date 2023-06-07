@@ -1,7 +1,6 @@
 package com.example.groupphase.presentation.components
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -28,7 +26,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun SimulationCard(simulation: Simulation) {
-    val simulationDate = simulation.date // Vervang dit met de daadwerkelijke LocalDate
+    val simulationDate = simulation.date
 
     val formatter = DateTimeFormatter.ofPattern("d-M-yy, HH:mm")
     val formattedDate = simulationDate.atTime(21, 34).format(formatter)

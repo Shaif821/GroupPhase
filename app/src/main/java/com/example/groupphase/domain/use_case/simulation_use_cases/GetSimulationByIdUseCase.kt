@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class GetSimulationByIdUseCase @Inject constructor(
     private val simulateRepository: SimulationRepository
 ) {
-    operator fun invoke(id: Int): Flow<Resource<Simulation>> = flow {
+    operator fun invoke(id: Long): Flow<Resource<Simulation>> = flow {
         try {
             emit(Resource.Loading())
             val simulationList = simulateRepository.getSimulationById(id).first()

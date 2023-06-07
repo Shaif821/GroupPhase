@@ -14,7 +14,7 @@ class SimulationRepositoryImpl @Inject constructor(
         return simulationDao.getAllSimulations()
     }
 
-    override fun getSimulationById(id: Int): Flow<Simulation> {
+    override fun getSimulationById(id: Long): Flow<Simulation> {
         return simulationDao.getSimulationById(id)
     }
 

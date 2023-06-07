@@ -17,7 +17,7 @@ interface SimulationDAO {
     fun getAllSimulations(): Flow<List<Simulation>>
 
     @Query("SELECT * FROM simulation_table WHERE id = :id")
-    fun getSimulationById(id: Int): Flow<Simulation>
+    fun getSimulationById(id: Long): Flow<Simulation>
 
     @Query("SELECT * FROM simulation_table WHERE date = :date")
     fun getSimulationByDate(date: LocalDate): Flow<List<Simulation>>
