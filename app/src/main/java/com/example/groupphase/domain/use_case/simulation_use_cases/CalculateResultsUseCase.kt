@@ -1,6 +1,5 @@
 package com.example.groupphase.domain.use_case.simulation_use_cases
 
-import android.util.Log
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Result
@@ -15,22 +14,21 @@ import javax.inject.Inject
 class CalculateResultsUseCase @Inject constructor() {
     operator fun invoke(
         rounds: List<Round>,
+        teams: List<Team>
     ): Flow<Resource<List<Result>>> = flow {
         try {
             emit(Resource.Loading())
-            emit(Resource.Success(getResults(rounds)))
+            // make a list of all the teams but make sure there are no duplicates with distinct()
+
+
+            emit(Resource.Success(getResults(rounds, teams)))
         } catch (e: Exception) {
             emit(Resource.Error("The following error occurred while calculating the results: ${e.message}"))
         }
     }
 
-    private fun getResults(rounds: List<Round>): List<Result> {
+    private fun getResults(rounds: List<Round>, teams: List<Team>): List<Result> {
         val results = mutableListOf<Result>()
-
-        // make a list of all the teams but make sure there are no duplicates with distinct()
-        val teams = rounds.flatMap { round ->
-            round.match.flatMap { listOf(it.home.first, it.away.first) }
-        }.distinct()
 
         teams.forEach { team ->
             results.add(calculateScore(team, rounds))

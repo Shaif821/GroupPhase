@@ -11,5 +11,6 @@ data class Simulation(
     @ColumnInfo(name = "id") var id: Long,
     val rounds: List<Round>,
     val results: List<Result>,
+    val teams: List<Team>,
     val date: LocalDate
 )

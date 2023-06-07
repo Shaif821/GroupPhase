@@ -5,6 +5,8 @@ import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Player
 import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
+import com.example.groupphase.utils.Helpers
+import com.example.groupphase.utils.Helpers.calculateTotalStrength
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -55,8 +57,8 @@ class SimulateMatchUseCase @Inject constructor() {
         away: Pair<Team, Int>
     ): List<Pair<Team, Int>> {
         // based on the total goals, the team with the highest strength will get the most goals
-        val homeStrength = (calculatStrenght(home.first.players) * 10).toInt()
-        val awayStrength = (calculatStrenght(away.first.players) * 10).toInt()
+        val homeStrength = (calculateTotalStrength(home.first) * 10).toInt()
+        val awayStrength = (calculateTotalStrength(away.first) * 10).toInt()
 
         var homeGoals = 0
         var awayGoals = 0

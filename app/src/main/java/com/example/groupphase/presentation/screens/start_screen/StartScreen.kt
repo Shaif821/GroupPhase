@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.groupphase.domain.model.Team
 import com.example.groupphase.presentation.components.SimulationCard
 import com.example.groupphase.presentation.components.TeamCard
+import com.example.groupphase.utils.Helpers
 
 @Composable
 fun StartScreen(
@@ -52,7 +53,7 @@ fun StartScreen(
             if (state.teams.isNotEmpty()) {
                 val teams = state.teams // Lokale variabele voor stabiele teams
                 teams.forEach { team ->
-                    TeamCard(team, viewModel.calculateTotalStrength(team))
+                    TeamCard(team, Helpers.calculateTotalStrength(team))
                 }
                 Button(
                     onClick = {
@@ -82,7 +83,6 @@ fun StartScreen(
             Divider(modifier = Modifier.padding(top = 16.dp))
             Text(text = "Simulations", fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
             state.simulations.forEach {
-                Divider(modifier = Modifier.padding(top = 16.dp))
                 SimulationCard(it)
             }
             Text(

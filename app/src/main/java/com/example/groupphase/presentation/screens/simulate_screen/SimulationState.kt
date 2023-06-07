@@ -9,7 +9,7 @@ data class SimulationState(
     val isLoading : Boolean = true,
     val error : String = "",
     val success : Boolean = false,
-    val simulation: Simulation = Simulation(0, emptyList(), emptyList(), LocalDate.now()),
+    val simulation: Simulation = Simulation(0, emptyList(), emptyList(), emptyList(), LocalDate.now()),
     val rounds: List<Round> = emptyList(),
     val teams : List<Team> = emptyList(),
     val currentRound: Int = 0,

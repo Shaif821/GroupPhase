@@ -94,20 +94,25 @@ class SimulateViewModel @Inject constructor(
     fun calculateResults() {
         _state.value = state.value.copy(isLoading = true)
 
-        calculateResultsUseCase(state.value.rounds).onEach { result ->
+        // Get all teams but only once
+        val teams = state.value.rounds.flatMap { round ->
+            round.match.flatMap { listOf(it.home.first, it.away.first) }
+        }.distinct()
+
+        calculateResultsUseCase(state.value.rounds, teams).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
                         simulation = state.value.simulation.copy(
-                            results = result.data ?: listOf()
+                            results = result.data ?: listOf(),
+                            teams = teams
                         ),
                         simulationEvent = SimulationEvent.CALCULATE_RESULTS
                     )
                     insertSimulation()
                 }
-
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -134,9 +139,6 @@ class SimulateViewModel @Inject constructor(
                         simulation = simulation,
                         simulationEvent = SimulationEvent.SAVED_SIMULATION
                     )
-
-                    Log.d("SimulateViewModel", "determineMatches: ${result.data}")
-
                 }
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
