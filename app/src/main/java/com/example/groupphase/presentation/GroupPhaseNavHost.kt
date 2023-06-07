@@ -38,7 +38,7 @@ fun GroupPhaseNavHost(
             SimulateScreen(
                 onNavigateStart = { navController.navigate("start") },
                 onNavigateResult = { id ->
-                    navController.navigate("result/$id") {
+                    navController.navigate("result/${id ?: ""}") { // Standaardwaarde is een lege string als id null is
                         popUpTo("simulate") { inclusive = true }
                     }
                 },

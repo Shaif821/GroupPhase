@@ -80,10 +80,11 @@ fun ResultScreen(
             }
 
             Divider(modifier = Modifier.padding(12.dp))
-            Text(text = "Simulations", fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
+
             state.simulations.forEach {
                 if(it.id == state.currentSimulation?.id) return@forEach
                 SimulationCard(it)
+                Divider(modifier = Modifier.padding(12.dp))
             }
         }
         Row(

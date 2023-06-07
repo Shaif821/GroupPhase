@@ -31,7 +31,7 @@ import com.example.groupphase.presentation.screens.start_screen.StartViewModel
 @Composable
 fun SimulateScreen(
     onNavigateStart: () -> Unit,
-    onNavigateResult: (Long) -> Unit,
+    onNavigateResult: (Long?) -> Unit,
     viewModel: SimulateViewModel = hiltViewModel(),
     startViewModel: StartViewModel = hiltViewModel(),
 ) {
