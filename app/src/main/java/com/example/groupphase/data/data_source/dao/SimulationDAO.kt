@@ -3,6 +3,7 @@ package com.example.groupphase.data.data_source.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.groupphase.domain.model.Simulation
@@ -24,8 +25,8 @@ interface SimulationDAO {
     @Query("SELECT * FROM simulation_table WHERE date BETWEEN :startDate AND :endDate")
     fun getSimulationByWeek(startDate: LocalDate, endDate: LocalDate): Flow<List<Simulation>>
 
-    @Insert
-    fun insertSimulation(simulation: Simulation)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSimulation(simulation: Simulation) : Long
 
     @Update
     fun updateSimulation(simulation: Simulation)

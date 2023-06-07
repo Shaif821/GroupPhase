@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 fun ResultScreen(
     id: String,
     onNavigateStart: () -> Unit,
-    onNavigateSimulation : () -> Unit,
 ) {
 
     Column(
@@ -64,16 +63,10 @@ fun ResultScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Button(
-                onClick = { onNavigateSimulation() },
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(text = "Return to simulation")
-            }
-            Button(
                 onClick = { onNavigateStart() },
                 modifier = Modifier.padding(16.dp)
             ) {
-                Text(text = "Save results")
+                Text(text = "Return to start")
             }
         }
     }

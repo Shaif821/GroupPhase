@@ -26,8 +26,8 @@ class SimulationRepositoryImpl @Inject constructor(
         return simulationDao.getSimulationByWeek(startDate, endDate)
     }
 
-    override fun insertSimulation(simulation: Simulation) {
-        simulationDao.insertSimulation(simulation)
+    override fun insertSimulation(simulation: Simulation) : Long {
+        return simulationDao.insertSimulation(simulation)
     }
 
     override fun updateSimulation(simulation: Simulation) {

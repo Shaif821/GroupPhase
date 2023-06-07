@@ -48,7 +48,6 @@ fun GroupPhaseNavHost(
                 ResultScreen(
                     id,
                     onNavigateStart = { navController.navigate("start") },
-                    onNavigateSimulation = { navController.navigate("simulate") },
                 )
             }
         }

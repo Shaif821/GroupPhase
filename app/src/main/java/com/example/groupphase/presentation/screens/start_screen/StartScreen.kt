@@ -77,6 +77,7 @@ fun StartScreen(
             }
 
             Divider(modifier = Modifier.padding(top = 16.dp))
+            Text(text = "Simulations ${state.simulations.size}", fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
             state.simulations.forEach {
                 Text(text = "Simulation: ${it.id}")
                 Divider(modifier = Modifier.padding(top = 16.dp))

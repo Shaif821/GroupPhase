@@ -10,7 +10,7 @@ interface SimulationRepository {
     fun getSimulationById(id: Int): Flow<Simulation>
     fun getSimulationByDate(date: LocalDate): Flow<List<Simulation>>
     fun getSimulationByWeek(startDate: LocalDate, endDate: LocalDate): Flow<List<Simulation>>
-    fun insertSimulation(simulation: Simulation)
+    fun insertSimulation(simulation: Simulation) : Long
     fun updateSimulation(simulation: Simulation)
     fun deleteSimulation(simulation: Simulation)
 }

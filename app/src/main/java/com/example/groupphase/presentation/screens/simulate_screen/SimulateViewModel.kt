@@ -1,5 +1,6 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.groupphase.common.Resource
@@ -10,6 +11,8 @@ import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatc
 import com.example.groupphase.domain.use_case.simulation_use_cases.InsertSimulationUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.SimulateMatchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -26,6 +29,8 @@ class SimulateViewModel @Inject constructor(
     private val _state = MutableStateFlow(SimulationState())
     val state = _state
 
+    private val ioScope = CoroutineScope(Dispatchers.IO)
+
     fun determineMatches() {
         _state.value = state.value.copy(isLoading = true)
         determineMatchesOrderUseCase(state.value.teams).onEach { result ->
@@ -37,6 +42,7 @@ class SimulateViewModel @Inject constructor(
                         rounds = result.data ?: listOf(),
                         simulationEvent = SimulationEvent.DETERMINE_MATCHES
                     )
+
                 }
 
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -63,13 +69,14 @@ class SimulateViewModel @Inject constructor(
                 is Resource.Success -> {
                     // index ends at 2
                     val newIndex = if (currentRoundIndex == 2) 2 else currentRoundIndex + 1
-                    val isFinished = if(canShowResult()) SimulationEvent.MATCH_FINISHED else SimulationEvent.SIMULATE_MATCH
+                    val isFinished =
+                        if (canShowResult()) SimulationEvent.MATCH_FINISHED else SimulationEvent.SIMULATE_MATCH
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
                         rounds = result.data ?: rounds,
                         currentRound = newIndex,
-                        simulationEvent =  isFinished
+                        simulationEvent = isFinished
                     )
                 }
 
@@ -93,18 +100,19 @@ class SimulateViewModel @Inject constructor(
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        simulation =  state.value.simulation.copy(
+                        simulation = state.value.simulation.copy(
                             results = result.data ?: listOf()
                         ),
                         simulationEvent = SimulationEvent.CALCULATE_RESULTS
                     )
                     insertSimulation()
                 }
+
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
                         isLoading = false,
-                        error = result.message ?: "Something went wrong..."
+                        error = result.message ?: "Something went wrong while calculating the results..."
                     )
                 }
             }
@@ -116,24 +124,29 @@ class SimulateViewModel @Inject constructor(
         val simulation = state.value.simulation
 
         insertSimulationUseCase(simulation).onEach { result ->
-            when(result) {
+            when (result) {
                 is Resource.Success -> {
+                    simulation.id = result.data ?: 0
+
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        simulation = result.data ?: simulation,
+                        simulation = simulation,
                         simulationEvent = SimulationEvent.SAVED_SIMULATION
                     )
+
+                    Log.d("SimulateViewModel", "determineMatches: ${result.data}")
+
                 }
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
                         isLoading = false,
-                        error = result.message ?: "Something went wrong..."
+                        error = result.message ?: "Something went wrong while inserting the simulation..."
                     )
                 }
             }
-        }.launchIn(viewModelScope)
+        }.launchIn(ioScope)
     }
 
 

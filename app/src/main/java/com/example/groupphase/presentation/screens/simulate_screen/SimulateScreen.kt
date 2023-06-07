@@ -31,7 +31,7 @@ import com.example.groupphase.presentation.screens.start_screen.StartViewModel
 @Composable
 fun SimulateScreen(
     onNavigateStart: () -> Unit,
-    onNavigateResult: (Int) -> Unit,
+    onNavigateResult: (Long) -> Unit,
     viewModel: SimulateViewModel = hiltViewModel(),
     startViewModel: StartViewModel = hiltViewModel(),
 ) {
@@ -42,7 +42,7 @@ fun SimulateScreen(
     val event = state.simulationEvent
 
     val calculateText = if (!isLoading && event == SimulationEvent.CALCULATE_RESULTS) {
-        "Calculating...."
+        "Matches is progress."
     } else "Calculate scores"
 
     LaunchedEffect(teams) {
@@ -113,7 +113,7 @@ fun SimulateScreen(
                             Text(text = calculateText)
                         }
                     }
-                    SimulationEvent.CALCULATE_RESULTS -> {
+                    SimulationEvent.SAVED_SIMULATION -> {
                         Button(
                             onClick = { onNavigateResult(state.simulation.id) },
                             modifier = Modifier
@@ -132,6 +132,7 @@ fun SimulateScreen(
                     }
                 }
             }
+            Text(text = event.toString())
         }
     }
 }

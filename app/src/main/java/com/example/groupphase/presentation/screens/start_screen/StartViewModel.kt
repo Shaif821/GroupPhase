@@ -34,6 +34,7 @@ class StartViewModel @Inject constructor(
     init {
         // Check if teams exists, if not create the teams and players
         getTeams()
+        getSimulations()
     }
 
     fun generateTeams() {
