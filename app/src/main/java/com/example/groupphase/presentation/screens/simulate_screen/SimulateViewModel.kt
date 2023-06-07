@@ -1,6 +1,5 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.groupphase.common.Resource
@@ -8,6 +7,7 @@ import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Team
 import com.example.groupphase.domain.use_case.simulation_use_cases.CalculateResultsUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
+import com.example.groupphase.domain.use_case.simulation_use_cases.InsertSimulationUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.SimulateMatchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,8 @@ import javax.inject.Inject
 class SimulateViewModel @Inject constructor(
     private val determineMatchesOrderUseCase: DetermineMatchesOrderUseCase,
     private val simulateMatchUseCase: SimulateMatchUseCase,
-    private val calculateResultsUseCase: CalculateResultsUseCase
+    private val calculateResultsUseCase: CalculateResultsUseCase,
+    private val insertSimulationUseCase: InsertSimulationUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SimulationState())
@@ -33,7 +34,8 @@ class SimulateViewModel @Inject constructor(
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        rounds = result.data ?: listOf()
+                        rounds = result.data ?: listOf(),
+                        simulationEvent = SimulationEvent.DETERMINE_MATCHES
                     )
                 }
 
@@ -61,16 +63,43 @@ class SimulateViewModel @Inject constructor(
                 is Resource.Success -> {
                     // index ends at 2
                     val newIndex = if (currentRoundIndex == 2) 2 else currentRoundIndex + 1
-
+                    val isFinished = if(canShowResult()) SimulationEvent.MATCH_FINISHED else SimulationEvent.SIMULATE_MATCH
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
                         rounds = result.data ?: rounds,
                         currentRound = newIndex,
-                        isFinished = canShowResult()
+                        simulationEvent =  isFinished
                     )
                 }
 
+                is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
+                is Resource.Error -> {
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        error = result.message ?: "Something went wrong."
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun calculateResults() {
+        _state.value = state.value.copy(isLoading = true)
+
+        calculateResultsUseCase(state.value.rounds).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        success = true,
+                        simulation =  state.value.simulation.copy(
+                            results = result.data ?: listOf()
+                        ),
+                        simulationEvent = SimulationEvent.CALCULATE_RESULTS
+                    )
+                    insertSimulation()
+                }
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -82,21 +111,18 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun finishSimulation() {
+    private fun insertSimulation() {
         _state.value = state.value.copy(isLoading = true)
+        val simulation = state.value.simulation
 
-        calculateResultsUseCase(state.value.rounds).onEach { result ->
-            when (result) {
+        insertSimulationUseCase(simulation).onEach { result ->
+            when(result) {
                 is Resource.Success -> {
-                    val simulation = state.value.simulation.copy(
-                        rounds = state.value.rounds,
-                        results = result.data ?: listOf()
-                    )
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        simulation = simulation,
-                        isSimulated = true
+                        simulation = result.data ?: simulation,
+                        simulationEvent = SimulationEvent.SAVED_SIMULATION
                     )
                 }
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)

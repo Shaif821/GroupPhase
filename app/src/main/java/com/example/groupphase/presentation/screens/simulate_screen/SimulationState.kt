@@ -13,8 +13,15 @@ data class SimulationState(
     val rounds: List<Round> = emptyList(),
     val teams : List<Team> = emptyList(),
     val currentRound: Int = 0,
-    val isFinished : Boolean = false,
-    val isSimulated: Boolean = false
+    val simulationEvent: SimulationEvent = SimulationEvent.DETERMINE_MATCHES
 )
+
+enum class SimulationEvent {
+    DETERMINE_MATCHES,
+    SIMULATE_MATCH,
+    MATCH_FINISHED,
+    CALCULATE_RESULTS,
+    SAVED_SIMULATION,
+}
 
 

@@ -6,7 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.domain.model.Team
+import com.example.groupphase.presentation.screens.result_screen.ResultScreen
 import com.example.groupphase.presentation.screens.simulate_screen.SimulateScreen
 import com.example.groupphase.presentation.screens.start_screen.StartScreen
 
@@ -19,18 +21,36 @@ fun GroupPhaseNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination =  startDestination
+        startDestination = startDestination
     ) {
 
         composable("start") {
             StartScreen(
-                onNavigateSimulate = {  navController.navigate("simulate") },
+                onNavigateSimulate = { navController.navigate("simulate") },
             )
         }
         composable("simulate") {
             SimulateScreen(
                 onNavigateStart = { navController.navigate("start") },
+                onNavigateResult = { id ->
+                    navController.navigate("result/$id") {
+                        popUpTo("simulate") { inclusive = true }
+                    }
+                },
             )
+        }
+        composable("result/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")
+
+            if (id == null) {
+                navController.navigate("start")
+            } else {
+                ResultScreen(
+                    id,
+                    onNavigateStart = { navController.navigate("start") },
+                    onNavigateSimulation = { navController.navigate("simulate") },
+                )
+            }
         }
     }
 }

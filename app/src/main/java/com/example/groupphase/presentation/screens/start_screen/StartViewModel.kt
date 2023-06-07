@@ -3,6 +3,7 @@ package com.example.groupphase.presentation.screens.start_screen
 import androidx.lifecycle.ViewModel
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Team
+import com.example.groupphase.domain.use_case.simulation_use_cases.GetAllSimulationUseCase
 import com.example.groupphase.domain.use_case.team_use_cases.GetAllTeamsUseCase
 import com.example.groupphase.domain.use_case.team_use_cases.InsertTeamUseCase
 import com.example.groupphase.utils.MockData
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class StartViewModel @Inject constructor(
     private val getAllTeamsUseCase : GetAllTeamsUseCase,
-    private val insertTeamUseCase: InsertTeamUseCase
+    private val insertTeamUseCase: InsertTeamUseCase,
+    private val getAllSimulationUseCase: GetAllSimulationUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow<StartState>(StartState())
     val state = _state.asStateFlow()
@@ -79,6 +81,29 @@ class StartViewModel @Inject constructor(
                 is Resource.Loading -> _state.value = StartState(isLoading = true)
             }
         }.launchIn(ioScope)
+    }
+
+    private fun getSimulations() {
+        _state.value = StartState(isLoading = true)
+        getAllSimulationUseCase().onEach { result ->
+            when(result) {
+                is Resource.Success -> {
+                    if(result.data.isNullOrEmpty()) {
+                        _state.value = state.value.copy(
+                            isLoading = false,
+                            simulations = listOf(),
+                        )
+                    } else {
+                        _state.value = state.value.copy(
+                            isLoading = false,
+                            simulations = result.data,
+                        )
+                    }
+                }
+                is Resource.Error -> _state.value = StartState(error = result.message ?: ERROR)
+                is Resource.Loading -> _state.value = StartState(isLoading = true)
+            }
+        }
     }
 
     fun calculateTotalStrength(team: Team) : Double {

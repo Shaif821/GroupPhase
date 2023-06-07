@@ -20,19 +20,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.presentation.components.MatchCard
 import com.example.groupphase.presentation.screens.start_screen.StartViewModel
 
 @Composable
 fun SimulateScreen(
     onNavigateStart: () -> Unit,
+    onNavigateResult: (Int) -> Unit,
     viewModel: SimulateViewModel = hiltViewModel(),
     startViewModel: StartViewModel = hiltViewModel(),
 ) {
@@ -40,10 +39,11 @@ fun SimulateScreen(
     val state = viewModel.state.collectAsState().value
 
     val isLoading = state.isLoading
-    val isDone = state.isSimulated
+    val event = state.simulationEvent
 
-    val canContinue = state.isFinished
-    val buttonText = if (!isLoading) "Calculating...." else "Calculate scores"
+    val calculateText = if (!isLoading && event == SimulationEvent.CALCULATE_RESULTS) {
+        "Calculating...."
+    } else "Calculate scores"
 
     LaunchedEffect(teams) {
         if (teams.teams.isNotEmpty()) {
@@ -101,33 +101,35 @@ fun SimulateScreen(
                         )
                     }
                 }
-                if(canContinue && !isDone) {
-                    Button(
-                        enabled = isLoading,
-                        onClick = { viewModel.finishSimulation() },
-                        modifier = Modifier
-                            .padding(32.dp)
-                            .height(48.dp),
-                    ) {
-                        Text(text = buttonText)
+                when(event) {
+                    SimulationEvent.MATCH_FINISHED -> {
+                        Button(
+                            enabled = isLoading,
+                            onClick = { viewModel.calculateResults() },
+                            modifier = Modifier
+                                .padding(32.dp)
+                                .height(48.dp),
+                        ) {
+                            Text(text = calculateText)
+                        }
                     }
-                }
-                else if (isDone) {
-                    Button(
-                        onClick = { viewModel.finishSimulation() },
-                        modifier = Modifier
-                            .padding(32.dp)
-                            .height(48.dp),
-                    ) {
-                        Text(text = "Simulation is done! Check the scores")
+                    SimulationEvent.CALCULATE_RESULTS -> {
+                        Button(
+                            onClick = { onNavigateResult(state.simulation.id) },
+                            modifier = Modifier
+                                .padding(32.dp)
+                                .height(48.dp),
+                        ) {
+                            Text(text = "Simulation is saved! Check the scores")
+                        }
                     }
-                }
-                else {
-                    Text(
-                        text = state.error,
-                        fontSize = 24.sp,
-                        modifier = Modifier.padding(top = 32.dp)
-                    )
+                    else -> {
+                        Text(
+                            text = state.error,
+                            fontSize = 24.sp,
+                            modifier = Modifier.padding(top = 32.dp)
+                        )
+                    }
                 }
             }
         }
