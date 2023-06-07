@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -18,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.groupphase.domain.model.Team
+import com.example.groupphase.presentation.components.SimulationCard
 import com.example.groupphase.presentation.components.TeamCard
 
 @Composable
@@ -30,6 +33,7 @@ fun StartScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .animateContentSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -41,7 +45,7 @@ fun StartScreen(
         )
         Spacer(modifier = Modifier.height(32.dp))
         Column(
-            modifier = Modifier.fillMaxSize().height(400.dp),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -75,12 +79,11 @@ fun StartScreen(
                     Text(text = "Generate Teams")
                 }
             }
-
             Divider(modifier = Modifier.padding(top = 16.dp))
-            Text(text = "Simulations ${state.simulations.size}", fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
+            Text(text = "Simulations", fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
             state.simulations.forEach {
                 Divider(modifier = Modifier.padding(top = 16.dp))
-                Text(text = "Simulation: ${it.id}")
+                SimulationCard(it)
             }
             Text(
                 text = state.error,

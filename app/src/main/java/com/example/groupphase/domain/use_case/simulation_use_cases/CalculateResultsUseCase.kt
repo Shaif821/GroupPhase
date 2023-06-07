@@ -1,5 +1,6 @@
 package com.example.groupphase.domain.use_case.simulation_use_cases
 
+import android.util.Log
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Result
@@ -31,19 +32,20 @@ class CalculateResultsUseCase @Inject constructor() {
             round.match.flatMap { listOf(it.home.first, it.away.first) }
         }.distinct()
 
-        rounds.forEach { round ->
-            teams.forEach { team ->
-                results.add(calculateScore(team, round.match))
-            }
+        teams.forEach { team ->
+            results.add(calculateScore(team, rounds))
         }
 
         // all results are calculated, but the results are not ordered yet (position)
         // so order the results by points, goal difference, goals for and goals against
         results.sortWith(
             compareByDescending<Result> { it.points }.thenByDescending { // first sort by points
-                it.goalDifference }.thenByDescending { // then by goal difference
-                it.goalsFor }.thenBy { // then by goals for
-                it.goalsAgainst } // then by goals against
+                it.goalDifference
+            }.thenByDescending { // then by goal difference
+                it.goalsFor
+            }.thenBy { // then by goals for
+                it.goalsAgainst
+            } // then by goals against
         )
 
         // Now the list is ordered, but the position is not set yet. So we set the pisition
@@ -52,27 +54,35 @@ class CalculateResultsUseCase @Inject constructor() {
         return results
     }
 
-    private fun calculateScore(team: Team, matches: List<Match>): Result {
+    private fun calculateScore(team: Team, rounds: List<Round>): Result {
         // filter all the matches so that only the matches of the team are left.
         // So matches where the team did not participate are filtered out
-        val teamMatches = matches.filter { match ->
-            match.played && (
-                    (match.home.first == team && match.away.first != team) ||
-                            (match.away.first == team && match.home.first != team)
-                    )
+        val teamMatches: List<Match> = rounds.flatMap { round ->
+            round.match.filter { match ->
+                match.home.first == team || match.away.first == team
+            }
         }
 
-        val won = teamMatches.count { match ->
-            match.home.first == team && match.home.second > match.away.second ||
-                    match.away.first == team && match.away.second > match.home.second
+        val won = rounds.count { round ->
+            round.match.any { match ->
+                (match.home.first == team && match.home.second > match.away.second) ||
+                        (match.away.first == team && match.away.second > match.home.second)
+            }
         }
 
-        val lost = teamMatches.count { match ->
-            match.home.first == team && match.home.second < match.away.second ||
-                    match.away.first == team && match.away.second < match.home.second
+        val lost = rounds.count { round ->
+            round.match.any { match ->
+                (match.home.first == team && match.home.second < match.away.second) ||
+                        (match.away.first == team && match.away.second < match.home.second)
+            }
         }
 
-        val draw = teamMatches.count { match -> match.home.second == match.away.second }
+        val draw = rounds.count { round ->
+            round.match.any { match ->
+                (match.home.first == team && match.home.second == match.away.second) ||
+                        (match.away.first == team && match.away.second == match.home.second)
+            }
+        }
 
         val goalsFor = calculateGoalsFor(team, teamMatches)
 
@@ -97,7 +107,7 @@ class CalculateResultsUseCase @Inject constructor() {
     }
 
 
-    fun calculateGoalsFor(team: Team, matches: List<Match>): Int {
+    private fun calculateGoalsFor(team: Team, matches: List<Match>): Int {
         var counter = 0
         matches.forEach { match ->
             if (match.home.first == team) {
@@ -109,7 +119,7 @@ class CalculateResultsUseCase @Inject constructor() {
         return counter
     }
 
-    fun calculateGoalsAgainst(team: Team, matches: List<Match>): Int {
+    private fun calculateGoalsAgainst(team: Team, matches: List<Match>): Int {
         var counter = 0
         matches.forEach { match ->
             if (match.home.first == team) {
@@ -120,7 +130,4 @@ class CalculateResultsUseCase @Inject constructor() {
         }
         return counter
     }
-
-
-
 }
