@@ -1,5 +1,6 @@
 package com.example.groupphase.domain.use_case.simulation_use_cases
 
+import android.util.Log
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.domain.repository.SimulationRepository

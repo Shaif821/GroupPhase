@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StartViewModel @Inject constructor(
-    private val getAllTeamsUseCase : GetAllTeamsUseCase,
+    private val getAllTeamsUseCase: GetAllTeamsUseCase,
     private val insertTeamUseCase: InsertTeamUseCase,
     private val getAllSimulationUseCase: GetAllSimulationUseCase
 ) : ViewModel() {
@@ -49,7 +49,7 @@ class StartViewModel @Inject constructor(
         getAllTeamsUseCase().onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    if(result.data.isNullOrEmpty()) {
+                    if (result.data.isNullOrEmpty()) {
                         _state.value = state.value.copy(
                             isLoading = false,
                             teams = listOf(),
@@ -61,6 +61,7 @@ class StartViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is Resource.Error -> _state.value = StartState(error = result.message ?: ERROR)
                 is Resource.Loading -> _state.value = StartState(isLoading = true)
             }
@@ -78,6 +79,7 @@ class StartViewModel @Inject constructor(
                         teams = state.value.teams + team,
                     )
                 }
+
                 is Resource.Error -> _state.value = StartState(error = result.message ?: ERROR)
                 is Resource.Loading -> _state.value = StartState(isLoading = true)
             }
@@ -87,27 +89,22 @@ class StartViewModel @Inject constructor(
     private fun getSimulations() {
         _state.value = StartState(isLoading = true)
         getAllSimulationUseCase().onEach { result ->
-            when(result) {
+            when (result) {
                 is Resource.Success -> {
-                    if(result.data.isNullOrEmpty()) {
-                        _state.value = state.value.copy(
-                            isLoading = false,
-                            simulations = listOf(),
-                        )
-                    } else {
-                        _state.value = state.value.copy(
-                            isLoading = false,
-                            simulations = result.data,
-                        )
-                    }
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        simulations = result.data ?: listOf()
+                    )
                 }
-                is Resource.Error -> _state.value = StartState(error = result.message ?: ERROR)
+                is Resource.Error -> {
+                    _state.value = StartState(error = result.message ?: ERROR)
+                }
                 is Resource.Loading -> _state.value = StartState(isLoading = true)
             }
-        }
+        }.launchIn(ioScope)
     }
 
-    fun calculateTotalStrength(team: Team) : Double {
+    fun calculateTotalStrength(team: Team): Double {
         var totalScore = 0.0
         team.players.forEach { player ->
             totalScore += player.strength
@@ -116,4 +113,4 @@ class StartViewModel @Inject constructor(
         //round to 1 decimal
         return (totalScore * 10.0).toInt() / 10.0
     }
- }
+}
