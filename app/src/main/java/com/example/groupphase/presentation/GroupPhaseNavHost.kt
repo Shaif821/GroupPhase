@@ -47,14 +47,10 @@ fun GroupPhaseNavHost(
         composable("result/?id={id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")
 
-            if (id == null) {
-                navController.navigate("start")
-            } else {
-                ResultScreen(
-                    id,
-                    onNavigateStart = { navController.navigate("start") },
-                )
-            }
+            ResultScreen(
+                id,
+                onNavigateStart = { navController.navigate("start") },
+            )
         }
     }
 }
