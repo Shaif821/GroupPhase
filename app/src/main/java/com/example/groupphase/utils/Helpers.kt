@@ -7,14 +7,19 @@ import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
 
 object Helpers {
-    fun calculateTotalStrength(team: Team): Double {
-        var totalScore = 0.0
+    fun calculateTotalStrength(team: Team): Int {
+        var totalScore = 0
         team.players.forEach { player ->
             totalScore += player.strength
+            Log.d("Helpers", "calculateTotalStrength: ${player.strength}")
         }
 
-        //round to 1 decimal
-        return (totalScore * 10.0).toInt() / 10.0
+
+        Log.d("Helpers", "------------")
+        Log.d("Helpers", "calculateTotalStrength: $totalScore")
+        Log.d("Helpers", "-------------")
+
+        return totalScore / 10
     }
 
     fun setTeamName(match: Match, sort: Boolean): String {
@@ -49,10 +54,6 @@ object Helpers {
                 currentMatchList[currentMatchIndex] = result.data ?: match
                 updatedRounds[currentRoundIndex] = currentRound.copy(match = currentMatchList)
             }
-        }
-
-        if(result.data != null) {
-            Log.d("Helpers", "Match: ${result.data.home.first.name} ---- ${result.data.away.first.name} score ${result.data.home.second} - ${result.data.away.second}")
         }
 
         return updatedRounds

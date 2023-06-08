@@ -20,8 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.groupphase.domain.model.Team
-import com.example.groupphase.presentation.components.SimulationCard
 import com.example.groupphase.presentation.components.TeamCard
 import com.example.groupphase.utils.Helpers
 

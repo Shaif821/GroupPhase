@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -25,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.example.groupphase.domain.model.Team
 
 @Composable
-fun TeamCard(team: Team, strength: Double) {
+fun TeamCard(team: Team, strength: Int) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     Card(

@@ -24,8 +24,8 @@ class MockData {
     private fun createMockPlayers(teamId: Int): List<Player> {
         val players = mutableListOf<Player>()
         for (i in 1..11) {
-            // randomize between 0.0 and 1.0
-            val randomStrength = (0..100).random() / 100.0
+            // randomize between 30 and 100
+            val randomStrength = (0..100).random()
             players.add(Player(i, teamId, "Player $i", randomStrength))
         }
         return players

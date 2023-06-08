@@ -10,5 +10,5 @@ data class Player(
     val id: Int,
     @ColumnInfo(name = "team_id") val teamId: Int,
     val name: String,
-    val strength: Double,
+    val strength: Int,
 )

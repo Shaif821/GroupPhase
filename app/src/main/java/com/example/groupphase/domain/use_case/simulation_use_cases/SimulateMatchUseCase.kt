@@ -1,12 +1,8 @@
 package com.example.groupphase.domain.use_case.simulation_use_cases
 
-import android.util.Log
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
-import com.example.groupphase.domain.model.Player
-import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
-import com.example.groupphase.utils.Helpers
 import com.example.groupphase.utils.Helpers.calculateTotalStrength
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -30,7 +26,6 @@ class SimulateMatchUseCase @Inject constructor() {
                 away = match.away.copy(second = playedMatch[1].second),
                 played = true
             )
-            Log.d("SimulateMatchUseCase", "Match: ${updatedMatch.home.first.name} ---- ${updatedMatch.away.first.name} score ${updatedMatch.home.second} - ${updatedMatch.away.second}")
             emit(Resource.Success(updatedMatch))
         } catch (e: Exception) {
             emit(Resource.Error("An error occurred while simlating the match: ${e.message}"))
@@ -43,8 +38,8 @@ class SimulateMatchUseCase @Inject constructor() {
         away: Pair<Team, Int>
     ): List<Pair<Team, Int>> {
         // based on the total goals, the team with the highest strength will get the most goals
-        val homeStrength = (calculateTotalStrength(home.first) * 10).toInt()
-        val awayStrength = (calculateTotalStrength(away.first) * 10).toInt()
+        val homeStrength = (calculateTotalStrength(home.first) * 10)
+        val awayStrength = (calculateTotalStrength(away.first) * 10)
 
         var homeGoals = 0
         var awayGoals = 0
@@ -61,7 +56,6 @@ class SimulateMatchUseCase @Inject constructor() {
                 } else if (randomNumb < homeStrength + awayStrength && awayStrength > 0) { // If the random number is higher than the home strength, the away team will get a goal
                     awayGoals++
                 }
-
                 goalsToSpend--
             }
         }
