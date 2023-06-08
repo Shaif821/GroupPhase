@@ -13,7 +13,7 @@ import java.util.Date
 
 @Dao
 interface SimulationDAO {
-    @Query("SELECT * FROM simulation_table")
+    @Query("SELECT * FROM simulation_table ORDER BY date DESC")
     fun getAllSimulations(): Flow<List<Simulation>>
 
     @Query("SELECT * FROM simulation_table WHERE id = :id")

@@ -14,8 +14,12 @@ import com.example.groupphase.utils.Helpers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -62,12 +66,6 @@ class SimulateViewModel @Inject constructor(
         simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    val isFinished = if (canShowResult()) {
-                        SimulationEvent.MATCH_FINISHED
-                    } else {
-                        SimulationEvent.SIMULATE_MATCH
-                    }
-
                     val updatedRounds = Helpers.updateMatchInRounds(
                         state.value.rounds,
                         currentRoundIndex,
@@ -75,15 +73,12 @@ class SimulateViewModel @Inject constructor(
                         result,
                         match
                     )
-
-                    Log.d("SimulateViewModel", "what event?: $isFinished")
-
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
                         rounds = updatedRounds,
                         currentRound = currentRoundIndex,
-                        simulationEvent = isFinished
+                        simulationEvent = checkSimulationEvent().first()
                     )
                 }
 
@@ -163,18 +158,22 @@ class SimulateViewModel @Inject constructor(
     }
 
 
-    private fun canShowResult(): Boolean {
-        var countedPlayedMatches = 2
+    private fun checkSimulationEvent(): Flow<SimulationEvent> = flow {
+        state.collect { state ->
+            var played = 0
 
-        state.value.rounds.forEach { round ->
-            round.match.forEach { match ->
-                if (match.played) {
-                    countedPlayedMatches++
+            state.rounds.forEach { round ->
+                round.match.forEach { match ->
+                    if (match.played) played++
                 }
             }
+
+            if (played == 5) {
+                emit(SimulationEvent.MATCH_FINISHED)
+            } else {
+                emit(SimulationEvent.SIMULATE_MATCH)
+            }
         }
-        Log.d("SimulateViewModel", "countedPlayedMatches: $countedPlayedMatches")
-        return countedPlayedMatches == 6
     }
 
     fun setTeams(teams: List<Team>) {

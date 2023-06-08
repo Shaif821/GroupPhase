@@ -5,20 +5,16 @@ import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 object Helpers {
     fun calculateTotalStrength(team: Team): Int {
         var totalScore = 0
         team.players.forEach { player ->
             totalScore += player.strength
-            Log.d("Helpers", "calculateTotalStrength: ${player.strength}")
         }
-
-
-        Log.d("Helpers", "------------")
-        Log.d("Helpers", "calculateTotalStrength: $totalScore")
-        Log.d("Helpers", "-------------")
-
         return totalScore / 10
     }
 
@@ -57,5 +53,10 @@ object Helpers {
         }
 
         return updatedRounds
+    }
+
+    fun formatLocalDate(localDate: LocalDate): String {
+        val formatter = DateTimeFormatter.ofPattern("d/M/yy")
+        return localDate.format(formatter)
     }
 }

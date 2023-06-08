@@ -23,14 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.utils.Helpers
+import com.example.groupphase.utils.Helpers.formatLocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun SimulationCard(simulation: Simulation) {
-    val simulationDate = simulation.date
-
-    val formatter = DateTimeFormatter.ofPattern("d-M-yy, HH:mm")
-    val formattedDate = simulationDate.atTime(21, 34).format(formatter)
+    val formattedDate = Helpers.formatLocalDate(simulation.date)
     val teamSorted = simulation.results.sortedBy { it.position }
     val topText = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp)
     val bodyText = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp)
