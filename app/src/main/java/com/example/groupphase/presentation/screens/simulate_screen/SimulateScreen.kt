@@ -45,7 +45,7 @@ fun SimulateScreen(
         "Matches is progress."
     } else "Calculate scores"
 
-    LaunchedEffect(teams) {
+    LaunchedEffect(teams.teams) {
         if (teams.teams.isNotEmpty()) {
             viewModel.setTeams(teams.teams)
             viewModel.setCurrentRound(0)

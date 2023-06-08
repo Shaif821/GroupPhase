@@ -16,24 +16,24 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
         try {
             emit(Resource.Loading())
 
-//            teamList.shuffled() // Shuffle the teams, so the order is random. TODO : not working :(
             val teams = teamList.toMutableList()
             val rounds = mutableListOf<Round>()
 
             // Total rounds to be played
-            val numRounds = 2
+            val numRounds = 3
+
+            // keep track of the played matches to prevent duplicate matches
+            val playedMatches = mutableSetOf<Pair<Team, Team>>()
 
             // Each round has 2 matches
-            for (roundNum in 0..numRounds) {
+            for (i in 1..numRounds) {
                 val matches = mutableListOf<Match>()
 
                 // Make copy of teams list
                 val teamsCopy = teams.toMutableList()
 
-                // keep track of the played matches (to prevent duplicate matches)
-                val playedMatches = mutableSetOf<Pair<Team, Team>>()
 
-                while (teamsCopy.isNotEmpty()) {
+                for (j in 0..1) {
                     val home = teamsCopy.first()
                     teamsCopy.removeAt(0)
 
@@ -41,7 +41,6 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
                     val away = findOpponent(home, teamsCopy, playedMatches)
 
                     if (away != null) {
-                        teamsCopy.remove(away)
                         val match = Match(Pair(home, 0), Pair(away, 0))
                         matches.add(match)
 
@@ -53,9 +52,10 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
                 rounds.add(Round(matches, LocalDate.now()))
 
                 // Rotate the teams
-                if (roundNum < numRounds) {
-                    teams.add(teams.removeAt(1))
-                }
+                // first team becomes last team
+                val first = teams.first()
+                teams.removeAt(0)
+                teams.add(first)
             }
             emit(Resource.Success(rounds))
         } catch (e: Exception) {
@@ -63,10 +63,16 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
         }
     }
 
-    private fun findOpponent(team: Team, teams: MutableList<Team>, playedMatches: Set<Pair<Team, Team>>): Team? {
-        return teams.firstOrNull { otherTeam ->
-            !playedMatches.contains(Pair(team, otherTeam)) &&
+    private fun findOpponent(
+        team: Team,
+        teams: MutableList<Team>,
+        playedMatches: Set<Pair<Team, Team>>
+    ): Team? {
+        val potentialOpponents = teams.filter { otherTeam ->
+            !playedMatches.contains(Pair(team, otherTeam)) ||
                     !playedMatches.contains(Pair(otherTeam, team))
         }
+
+        return potentialOpponents.randomOrNull()
     }
 }
