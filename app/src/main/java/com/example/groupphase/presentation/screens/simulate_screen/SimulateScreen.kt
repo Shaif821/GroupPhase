@@ -1,5 +1,6 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +32,7 @@ import com.example.groupphase.presentation.screens.start_screen.StartViewModel
 @Composable
 fun SimulateScreen(
     onNavigateStart: () -> Unit,
-    onNavigateResult: (Long?) -> Unit,
+    onNavigateResult: (String?) -> Unit,
     viewModel: SimulateViewModel = hiltViewModel(),
     startViewModel: StartViewModel = hiltViewModel(),
 ) {
@@ -106,7 +107,7 @@ fun SimulateScreen(
                 when(event) {
                     SimulationEvent.MATCH_FINISHED -> {
                         Button(
-                            enabled = isLoading,
+                            enabled = !isLoading,
                             onClick = { viewModel.calculateResults() },
                             modifier = Modifier
                                 .padding(32.dp)
@@ -117,7 +118,7 @@ fun SimulateScreen(
                     }
                     SimulationEvent.SAVED_SIMULATION -> {
                         Button(
-                            onClick = { onNavigateResult(state.simulation.id) },
+                            onClick = { onNavigateResult(null) },
                             modifier = Modifier
                                 .padding(32.dp)
                                 .height(48.dp),

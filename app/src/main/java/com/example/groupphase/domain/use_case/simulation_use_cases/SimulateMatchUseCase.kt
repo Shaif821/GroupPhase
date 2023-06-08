@@ -1,5 +1,6 @@
 package com.example.groupphase.domain.use_case.simulation_use_cases
 
+import android.util.Log
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Player
@@ -17,10 +18,8 @@ class SimulateMatchUseCase @Inject constructor() {
     operator fun invoke(
         match: Match,
     ): Flow<Resource<Match>> = flow {
-
         try {
             emit(Resource.Loading())
-
             // randomize total goals, but keep it within a range of 0 and 6
             val totalGoals = Random.nextInt(1, 6)
 
@@ -33,7 +32,7 @@ class SimulateMatchUseCase @Inject constructor() {
             )
             emit(Resource.Success(updatedMatch))
         } catch (e: Exception) {
-            emit(Resource.Error("The following error occurred while simulating the match: ${e.message}"))
+            emit(Resource.Error("An error occurred while simlating the match: ${e.message}"))
         }
     }
 
@@ -50,13 +49,15 @@ class SimulateMatchUseCase @Inject constructor() {
         var awayGoals = 0
         var goalsToSpend = totalGoals
 
+        // loop through the total goals. Assign each goal to a team based on their strength
         repeat(totalGoals) {
             if (goalsToSpend > 0) {
                 val randomNumb = Random.nextInt(0, homeStrength + awayStrength)
 
+                // If the random number is lower than the home strength, the home team will get a goal
                 if (randomNumb < homeStrength && homeStrength > 0) {
                     homeGoals++
-                } else if (randomNumb < homeStrength + awayStrength && awayStrength > 0) {
+                } else if (randomNumb < homeStrength + awayStrength && awayStrength > 0) { // If the random number is higher than the home strength, the away team will get a goal
                     awayGoals++
                 }
 
@@ -68,13 +69,5 @@ class SimulateMatchUseCase @Inject constructor() {
             home.copy(second = homeGoals),
             away.copy(second = awayGoals)
         )
-    }
-
-    private fun calculatStrenght(players: List<Player>): Double {
-        var strength = 0.0
-        players.forEach { player ->
-            strength += player.strength
-        }
-        return strength + 10
     }
 }

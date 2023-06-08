@@ -26,16 +26,9 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
             for (i in 0 until numRounds) {
                 // Create the matches for the round
                 val matches: MutableList<Match> = mutableListOf()
-                println("-----------Round ${i + 1}------------")
-                teams.forEach { println(it.name) }
-                println("---")
 
                 for (j in 0 until 2) {
-                    println("First team in list: ${teams[0].name}")
-
                     val homeIndex = if (j == 0) 0 else (teams.size - 1)
-
-                    println("First team after index: ${teams[homeIndex].name}")
 
                     val home = teams[homeIndex]
                     val away = findOpponent(home, teams, teamsPlayed, matches)
@@ -45,9 +38,6 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
                         teamsPlayed.add(Pair(home, away))
                         matches.add(Match(Pair(home, 0), Pair(away, 0), false))
                     }
-
-                    println("Round ${i + 1} - Match ${j + 1}: ${home.name} - ${away?.name}")
-                    println("\n")
                 }
 
                 rounds.add(Round(matches, LocalDate.now()))
@@ -55,12 +45,6 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
                 // Shift the teams order for the next round
                 val lastTeam = teams.removeAt(teams.size - 1)
                 teams.add(1, lastTeam)
-            }
-
-            rounds.forEach { round ->
-                round.match.forEach { match ->
-                    println("${match.home.first.name} - ${match.away.first.name}")
-                }
             }
 
             emit(Resource.Success(rounds))
@@ -75,11 +59,6 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
         teamsPlayed: MutableList<Pair<Team, Team>>,
         matches: MutableList<Match>
     ): Team? {
-        teamsPlayed.forEach {
-            println("Teams played: ${it.first.name} - ${it.second.name}")
-        }
-        println("\n")
-
         // Filter out the teams that have already played against each other
         var potentialOpponents = teams.filter { team ->
             // Check if any pair in teamsPlayed contains the home team and the current team
@@ -88,30 +67,11 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
             team != home && !playedTogether
         }
 
-        println("Potential-------------------")
-        potentialOpponents.forEach { team ->
-            println(team.name)
-        }
-        println("\n")
-
         // Get all teams from matches (the teams from the first and second positions)
         val teamsFromMatches = matches.flatMap { listOf(it.home.first, it.away.first) }
-        println("Matches that have already been played-------")
-        teamsFromMatches.forEach { match ->
-            println(match.name)
-        }
-        println("\n")
 
         // Remove the teams from matches from the potential opponents
         potentialOpponents = potentialOpponents.filter { !teamsFromMatches.contains(it) }
-
-        println("After removing-------------------")
-        potentialOpponents.forEach { team ->
-            println(team.name)
-        }
-        println("\n")
-
-        println("-------------------")
 
         return potentialOpponents.firstOrNull()
     }

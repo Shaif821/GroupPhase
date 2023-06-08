@@ -1,5 +1,6 @@
 package com.example.groupphase.presentation.components
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,11 +31,14 @@ fun MatchCard(
 ) {
 
     LaunchedEffect(match) {
-//        statMatch(match, currentMatchIndex, currentRoundIndex)
+        // this if statement is dirty but somehow the second and third matches will constantly update...
+        if(!match.played) {
+            statMatch(match, currentMatchIndex, currentRoundIndex)
+        }
     }
 
-    val homeName =  teamName(match, true).uppercase()
-    val awayName =  teamName(match, false).uppercase()
+    val homeName = teamName(match, true).uppercase()
+    val awayName = teamName(match, false).uppercase()
 
     val score = match.home.second.toString() + "-" + match.away.second.toString()
 

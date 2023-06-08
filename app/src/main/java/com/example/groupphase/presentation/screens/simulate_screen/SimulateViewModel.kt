@@ -56,13 +56,11 @@ class SimulateViewModel @Inject constructor(
     }
 
     fun startMatch(match: Match, currentRoundIndex: Int, currentMatchIndex: Int) {
-        // Get the current round and match
-        // Get the index of the match. This will be used to update the match later on
         _state.value = state.value.copy(isLoading = true)
+
         simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    // index ends at 2
                     val newIndex = if (currentRoundIndex == 2) {
                         2
                     } else {
@@ -76,11 +74,17 @@ class SimulateViewModel @Inject constructor(
 
                     val rounds = state.value.rounds.toMutableList()
 
-                    rounds[currentRoundIndex] = rounds[currentRoundIndex].copy(
-                        match = rounds[currentRoundIndex].match.toMutableList().apply {
-                            set(currentMatchIndex, result.data ?: match)
+                    // Check if currentRoundIndex is within bounds
+                    if (currentRoundIndex < rounds.size) {
+                        val currentRound = rounds[currentRoundIndex]
+                        val currentMatchList = currentRound.match.toMutableList()
+
+                        // Check if currentMatchIndex is within bounds
+                        if (currentMatchIndex < currentMatchList.size) {
+                            currentMatchList[currentMatchIndex] = result.data ?: match
+                            rounds[currentRoundIndex] = currentRound.copy(match = currentMatchList)
                         }
-                    )
+                    }
 
                     _state.value = state.value.copy(
                         isLoading = false,
@@ -190,7 +194,8 @@ class SimulateViewModel @Inject constructor(
                 }
             }
         }
-        return countedPlayedMatches == 5
+
+        return countedPlayedMatches == 6
     }
 
     fun setTeams(teams: List<Team>) {

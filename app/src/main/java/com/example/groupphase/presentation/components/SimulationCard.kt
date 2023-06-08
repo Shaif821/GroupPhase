@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.utils.Helpers
@@ -49,12 +50,13 @@ fun SimulationCard(simulation: Simulation) {
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth(),
-                text = "Simulation on $formattedDate"
+                text = "Simulation on $formattedDate",
+                textAlign = TextAlign.Center
             )
             Divider(modifier = Modifier.padding(12.dp))
             Row(
                 modifier = Modifier
-                    .width(IntrinsicSize.Min)
+                    .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
                     .padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -70,6 +72,9 @@ fun SimulationCard(simulation: Simulation) {
             }
             simulation.results.forEachIndexed { index, result ->
                 Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
                 ) {
                     Row(
                         modifier = Modifier
