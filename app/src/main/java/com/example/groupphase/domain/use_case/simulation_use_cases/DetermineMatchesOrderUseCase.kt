@@ -1,5 +1,6 @@
 package com.example.groupphase.domain.use_case.simulation_use_cases
 
+import android.util.Log
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Round
@@ -20,15 +21,15 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
             val teamsPlayed = mutableListOf<Pair<Team, Team>>()
 
             // Total rounds to be played
-            val numRounds = 3
+            val numRounds = 2
 
             // Create the rounds
-            for (i in 0 until numRounds) {
+            for (i in 0..numRounds) {
                 // Create the matches for the round
                 val matches: MutableList<Match> = mutableListOf()
 
-                for (j in 0 until 2) {
-                    val homeIndex = if (j == 0) 0 else (teams.size - 1)
+                for (j in 0..2) {
+                    val homeIndex = if (j == 0) 0 else (2)
 
                     val home = teams[homeIndex]
                     val away = findOpponent(home, teams, teamsPlayed, matches)
@@ -45,6 +46,15 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
                 // Shift the teams order for the next round
                 val lastTeam = teams.removeAt(teams.size - 1)
                 teams.add(1, lastTeam)
+            }
+
+            rounds.forEachIndexed {index, round ->
+                Log.d("DetermineMatchesOrderUseCase", "Round ${index + 1}")
+                round.match.forEachIndexed { index, match ->
+                    Log.d("DetermineMatchesOrderUseCase", "Match ${index + 1}")
+                    Log.d("DetermineMatchesOrderUseCase", "Home: ${match.home.first.name}")
+                    Log.d("DetermineMatchesOrderUseCase", "Away: ${match.away.first.name}")
+                }
             }
 
             emit(Resource.Success(rounds))

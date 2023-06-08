@@ -38,6 +38,7 @@ fun SimulateScreen(
 ) {
     val teams = startViewModel.state.collectAsState().value
     val state = viewModel.state.collectAsState().value
+    val rounds = state.rounds.toMutableList()
 
     val isLoading = state.isLoading
     val event = state.simulationEvent
@@ -87,8 +88,8 @@ fun SimulateScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (state.rounds.isNotEmpty()) {
-                state.rounds.forEachIndexed { index, round ->
+            if (rounds.isNotEmpty()) {
+                rounds.forEachIndexed { index, round ->
                     Text(
                         text = "Round #${index + 1}",
                         fontSize = 24.sp,
@@ -104,7 +105,7 @@ fun SimulateScreen(
                         )
                     }
                 }
-                when(event) {
+                when (event) {
                     SimulationEvent.MATCH_FINISHED -> {
                         Button(
                             enabled = !isLoading,
@@ -116,6 +117,7 @@ fun SimulateScreen(
                             Text(text = calculateText)
                         }
                     }
+
                     SimulationEvent.SAVED_SIMULATION -> {
                         Button(
                             onClick = { onNavigateResult(null) },
@@ -126,6 +128,7 @@ fun SimulateScreen(
                             Text(text = "Simulation is saved! Check the scores")
                         }
                     }
+
                     else -> {
                         Text(
                             text = state.error,
@@ -134,6 +137,12 @@ fun SimulateScreen(
                         )
                     }
                 }
+            } else {
+                Text(
+                    text = "No matches",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(top = 32.dp)
+                )
             }
         }
     }

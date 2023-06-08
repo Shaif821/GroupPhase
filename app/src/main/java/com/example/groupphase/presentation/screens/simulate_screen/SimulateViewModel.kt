@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
+import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
 import com.example.groupphase.domain.use_case.simulation_use_cases.CalculateResultsUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
@@ -14,8 +15,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,9 +28,8 @@ class SimulateViewModel @Inject constructor(
     private val calculateResultsUseCase: CalculateResultsUseCase,
     private val insertSimulationUseCase: InsertSimulationUseCase
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(SimulationState())
-    val state = _state
+    val state = _state.asStateFlow()
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -52,7 +54,7 @@ class SimulateViewModel @Inject constructor(
                     )
                 }
             }
-        }.launchIn(viewModelScope)
+        }.launchIn(ioScope)
     }
 
     fun startMatch(match: Match, currentRoundIndex: Int, currentMatchIndex: Int) {
@@ -61,36 +63,25 @@ class SimulateViewModel @Inject constructor(
         simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    val newIndex = if (currentRoundIndex == 2) {
-                        2
-                    } else {
-                        currentRoundIndex + 1
-                    }
                     val isFinished = if (canShowResult()) {
                         SimulationEvent.MATCH_FINISHED
                     } else {
                         SimulationEvent.SIMULATE_MATCH
                     }
 
-                    val rounds = state.value.rounds.toMutableList()
-
-                    // Check if currentRoundIndex is within bounds
-                    if (currentRoundIndex < rounds.size) {
-                        val currentRound = rounds[currentRoundIndex]
-                        val currentMatchList = currentRound.match.toMutableList()
-
-                        // Check if currentMatchIndex is within bounds
-                        if (currentMatchIndex < currentMatchList.size) {
-                            currentMatchList[currentMatchIndex] = result.data ?: match
-                            rounds[currentRoundIndex] = currentRound.copy(match = currentMatchList)
-                        }
-                    }
+                    val updatedRounds = updateMatchInRounds(
+                        state.value.rounds,
+                        currentRoundIndex,
+                        currentMatchIndex,
+                        result,
+                        match
+                    )
 
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        rounds = rounds,
-                        currentRound = newIndex,
+                        rounds = updatedRounds,
+                        currentRound = currentRoundIndex,
                         simulationEvent = isFinished
                     )
                 }
@@ -103,8 +94,33 @@ class SimulateViewModel @Inject constructor(
                     )
                 }
             }
-        }.launchIn(viewModelScope)
+        }.launchIn(ioScope)
     }
+
+    private fun updateMatchInRounds(
+        rounds: List<Round>,
+        currentRoundIndex: Int,
+        currentMatchIndex: Int,
+        result: Resource.Success<Match>,
+        match: Match
+    ): List<Round> {
+        val updatedRounds = rounds.toMutableList()
+
+        // Check if currentRoundIndex is within bounds
+        if (currentRoundIndex < updatedRounds.size) {
+            val currentRound = updatedRounds[currentRoundIndex]
+            val currentMatchList = currentRound.match.toMutableList()
+
+            // Check if currentMatchIndex is within bounds
+            if (currentMatchIndex < currentMatchList.size) {
+                currentMatchList[currentMatchIndex] = result.data ?: match
+                updatedRounds[currentRoundIndex] = currentRound.copy(match = currentMatchList)
+            }
+        }
+
+        return updatedRounds
+    }
+
 
     fun calculateResults() {
         _state.value = state.value.copy(isLoading = true)
@@ -138,7 +154,7 @@ class SimulateViewModel @Inject constructor(
                     )
                 }
             }
-        }.launchIn(viewModelScope)
+        }.launchIn(ioScope)
     }
 
     private fun insertSimulation() {

@@ -30,12 +30,15 @@ fun MatchCard(
     statMatch: (Match, Int, Int) -> Unit,
 ) {
 
-    LaunchedEffect(match) {
-        // this if statement is dirty but somehow the second and third matches will constantly update...
-        if(!match.played) {
-            statMatch(match, currentMatchIndex, currentRoundIndex)
-        }
+    LaunchedEffect(Unit) {
+        if (!match.played) statMatch(match, currentMatchIndex, currentRoundIndex)
+
     }
+
+//    LaunchedEffect(match) {
+    // this if statement is dirty but somehow the second and third matches will constantly update...
+//        if(!match.played) statMatch(match, currentMatchIndex, currentRoundIndex)
+//    }
 
     val homeName = teamName(match, true).uppercase()
     val awayName = teamName(match, false).uppercase()
