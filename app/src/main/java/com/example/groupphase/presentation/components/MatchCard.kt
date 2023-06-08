@@ -20,28 +20,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.groupphase.domain.model.Match
+import com.example.groupphase.utils.Helpers
 
 @Composable
 fun MatchCard(
     currentRoundIndex: Int,
     currentMatchIndex: Int,
     match: Match,
-    teamName: (match: Match, sort: Boolean) -> String,
     statMatch: (Match, Int, Int) -> Unit,
 ) {
 
     LaunchedEffect(Unit) {
-        if (!match.played) statMatch(match, currentMatchIndex, currentRoundIndex)
-
+        if (!match.played) statMatch(match, currentRoundIndex, currentMatchIndex)
     }
 
-//    LaunchedEffect(match) {
-    // this if statement is dirty but somehow the second and third matches will constantly update...
-//        if(!match.played) statMatch(match, currentMatchIndex, currentRoundIndex)
-//    }
-
-    val homeName = teamName(match, true).uppercase()
-    val awayName = teamName(match, false).uppercase()
+    val homeName = Helpers.setTeamName(match, true).uppercase()
+    val awayName = Helpers.setTeamName(match, false).uppercase()
 
     val score = match.home.second.toString() + "-" + match.away.second.toString()
 

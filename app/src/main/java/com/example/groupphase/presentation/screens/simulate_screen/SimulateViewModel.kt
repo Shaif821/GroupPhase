@@ -1,8 +1,6 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
 import com.example.groupphase.domain.model.Round
@@ -11,6 +9,7 @@ import com.example.groupphase.domain.use_case.simulation_use_cases.CalculateResu
 import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.InsertSimulationUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.SimulateMatchUseCase
+import com.example.groupphase.utils.Helpers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -69,7 +67,7 @@ class SimulateViewModel @Inject constructor(
                         SimulationEvent.SIMULATE_MATCH
                     }
 
-                    val updatedRounds = updateMatchInRounds(
+                    val updatedRounds = Helpers.updateMatchInRounds(
                         state.value.rounds,
                         currentRoundIndex,
                         currentMatchIndex,
@@ -97,30 +95,6 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(ioScope)
     }
 
-    private fun updateMatchInRounds(
-        rounds: List<Round>,
-        currentRoundIndex: Int,
-        currentMatchIndex: Int,
-        result: Resource.Success<Match>,
-        match: Match
-    ): List<Round> {
-        val updatedRounds = rounds.toMutableList()
-
-        // Check if currentRoundIndex is within bounds
-        if (currentRoundIndex < updatedRounds.size) {
-            val currentRound = updatedRounds[currentRoundIndex]
-            val currentMatchList = currentRound.match.toMutableList()
-
-            // Check if currentMatchIndex is within bounds
-            if (currentMatchIndex < currentMatchList.size) {
-                currentMatchList[currentMatchIndex] = result.data ?: match
-                updatedRounds[currentRoundIndex] = currentRound.copy(match = currentMatchList)
-            }
-        }
-
-        return updatedRounds
-    }
-
 
     fun calculateResults() {
         _state.value = state.value.copy(isLoading = true)
@@ -144,7 +118,6 @@ class SimulateViewModel @Inject constructor(
                     )
                     insertSimulation()
                 }
-
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -186,19 +159,6 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(ioScope)
     }
 
-
-    fun setTeamName(match: Match, sort: Boolean): String {
-        val name = if (sort) match.home.first.name else match.away.first.name
-
-        if (match.home.second == match.away.second && sort) {
-            return "$name ❌"
-        }
-        return if (match.home.second > match.away.second && sort) {
-            "$name⚽"
-        } else if (match.home.second < match.away.second && !sort) {
-            "$name⚽"
-        } else "❌ $name"
-    }
 
     private fun canShowResult(): Boolean {
         var countedPlayedMatches = 2

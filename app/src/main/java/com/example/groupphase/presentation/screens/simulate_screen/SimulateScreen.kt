@@ -100,7 +100,6 @@ fun SimulateScreen(
                             index,
                             matchIndex,
                             match = it,
-                            viewModel::setTeamName,
                             viewModel::startMatch
                         )
                     }
