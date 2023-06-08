@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import javax.inject.Inject
-import javax.inject.Singleton
 
 // Determine the order which the teams will play against eah other. A total of 3 rounds will be played
 class DetermineMatchesOrderUseCase @Inject constructor() {
@@ -20,43 +19,23 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
             val rounds = mutableListOf<Round>()
 
             // Total rounds to be played
-            val numRounds = 3
+            val numRounds = 2
 
-            // keep track of the played matches to prevent duplicate matches
-            val playedMatches = mutableSetOf<Pair<Team, Team>>()
-
-            // Each round has 2 matches
-            for (i in 1..numRounds) {
-                val matches = mutableListOf<Match>()
-
-                // Make copy of teams list
-                val teamsCopy = teams.toMutableList()
-
+            // Create the rounds
+            for (i in 0..numRounds) {
+                // Create the matches for the first round
+                val matches: MutableList<Match> = mutableListOf()
 
                 for (j in 0..1) {
-                    val home = teamsCopy.first()
-                    teamsCopy.removeAt(0)
-
-                    // Find opponent for the home team
-                    val away = findOpponent(home, teamsCopy, playedMatches)
-
+                    val home = teams[j]
+                    val away = findOpponent(home, teams, matches)
                     if (away != null) {
-                        val match = Match(Pair(home, 0), Pair(away, 0))
-                        matches.add(match)
-
-                        // add the match to the played matches
-                        playedMatches.add(Pair(home, away))
+                        matches.add(Match(Pair(home, 0), Pair(away, 0), false))
                     }
                 }
-
                 rounds.add(Round(matches, LocalDate.now()))
-
-                // Rotate the teams
-                // first team becomes last team
-                val first = teams.first()
-                teams.removeAt(0)
-                teams.add(first)
             }
+
             emit(Resource.Success(rounds))
         } catch (e: Exception) {
             emit(Resource.Error("Er is een fout opgetreden bij het bepalen van de wedstrijdvolgorde: ${e.message}"))
@@ -64,15 +43,22 @@ class DetermineMatchesOrderUseCase @Inject constructor() {
     }
 
     private fun findOpponent(
-        team: Team,
+        home: Team,
         teams: MutableList<Team>,
-        playedMatches: Set<Pair<Team, Team>>
+        matches: List<Match>
     ): Team? {
-        val potentialOpponents = teams.filter { otherTeam ->
-            !playedMatches.contains(Pair(team, otherTeam)) ||
-                    !playedMatches.contains(Pair(otherTeam, team))
+        // filter out the teams that have already played against each other
+        val potentialOpponents = teams.filter { team ->
+            matches.none { match ->
+                (match.home.first == team && match.away.first == home) ||
+                        (match.home.first == home && match.away.first == team)
+            } && team != home // ALSO make sure the team is not the home team
         }
 
-        return potentialOpponents.randomOrNull()
+        potentialOpponents.forEach {
+            println(it.name)
+        }
+
+        return potentialOpponents.firstOrNull()
     }
 }
