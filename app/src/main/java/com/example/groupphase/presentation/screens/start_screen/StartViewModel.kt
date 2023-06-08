@@ -49,19 +49,11 @@ class StartViewModel @Inject constructor(
         getAllTeamsUseCase().onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    if (result.data.isNullOrEmpty()) {
-                        _state.value = state.value.copy(
-                            isLoading = false,
-                            teams = listOf(),
-                        )
-                    } else {
-                        _state.value = state.value.copy(
-                            isLoading = false,
-                            teams = result.data,
-                        )
-                    }
+                    _state.value = state.value.copy(
+                        isLoading = false,
+                        teams = result.data ?: listOf(),
+                    )
                 }
-
                 is Resource.Error -> _state.value = StartState(error = result.message ?: ERROR)
                 is Resource.Loading -> _state.value = StartState(isLoading = true)
             }
@@ -80,7 +72,10 @@ class StartViewModel @Inject constructor(
                     )
                 }
 
-                is Resource.Error -> _state.value = StartState(error = result.message ?: ERROR)
+                is Resource.Error -> {
+                    getTeams()
+                    _state.value = StartState(error = result.message ?: ERROR)
+                }
                 is Resource.Loading -> _state.value = StartState(isLoading = true)
             }
         }.launchIn(ioScope)
@@ -96,9 +91,11 @@ class StartViewModel @Inject constructor(
                         simulations = result.data ?: listOf()
                     )
                 }
+
                 is Resource.Error -> {
                     _state.value = StartState(error = result.message ?: ERROR)
                 }
+
                 is Resource.Loading -> _state.value = StartState(isLoading = true)
             }
         }.launchIn(ioScope)

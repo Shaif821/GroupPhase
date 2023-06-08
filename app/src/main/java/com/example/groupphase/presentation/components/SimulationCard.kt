@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.utils.Helpers
 import java.time.format.DateTimeFormatter
@@ -30,6 +31,9 @@ fun SimulationCard(simulation: Simulation) {
 
     val formatter = DateTimeFormatter.ofPattern("d-M-yy, HH:mm")
     val formattedDate = simulationDate.atTime(21, 34).format(formatter)
+    val teamSorted = simulation.results.sortedBy { it.position }
+    val topText = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp)
+    val bodyText = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp)
 
     Card(
         modifier = Modifier
@@ -60,15 +64,16 @@ fun SimulationCard(simulation: Simulation) {
                     .padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "Position")
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "Win")
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "Draw")
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "Loss")
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "For")
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "Against")
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "-/+")
-                Text(modifier = Modifier.padding(horizontal = 5.dp), text = "Points")
+                Text(text = "Position", style = topText)
+                Text(text = "Win", style = topText)
+                Text(text = "Draw", style = topText)
+                Text(text = "Loss", style = topText)
+                Text(text = "For", style = topText)
+                Text(text = "Against", style = topText)
+                Text(text = "-/+", style = topText)
+                Text(text = "Points", style = topText)
             }
+            Divider(modifier = Modifier.padding(2.dp))
             simulation.results.forEachIndexed { index, result ->
                 Column(
                     modifier = Modifier
@@ -82,21 +87,23 @@ fun SimulationCard(simulation: Simulation) {
                             .padding(bottom = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text(text = "${index + 1}. ${result.team.name}")
-                        Text(text = "${result.won}")
-                        Text(text = "${result.drawn}")
-                        Text(text = "${result.lost}")
-                        Text(text = "${result.goalsFor}")
-                        Text(text = "${result.goalsAgainst}")
-                        Text(text = "${result.goalDifference}")
-                        Text(text = "${result.points}")
+                        Text(text = "${index + 1}. ${result.team.name}", style = bodyText)
+                        Text(text = "${result.won}", style = bodyText)
+                        Text(text = "${result.drawn}", style = bodyText)
+                        Text(text = "${result.lost}", style = bodyText)
+                        Text(text = "${result.goalsFor}", style = bodyText)
+                        Text(text = "${result.goalsAgainst}", style = bodyText)
+                        Text(text = "${result.goalDifference}", style = bodyText)
+                        Text(text = "${result.points}", style = bodyText)
                     }
                 }
             }
             Divider(modifier = Modifier.padding(12.dp))
             // Team stats
-            simulation.teams.forEach { team ->
-                TeamCard(team, Helpers.calculateTotalStrength(team))
+            teamSorted.forEach { result ->
+                result.team.let { team ->
+                    TeamCard(team, Helpers.calculateTotalStrength(team))
+                }
             }
         }
     }

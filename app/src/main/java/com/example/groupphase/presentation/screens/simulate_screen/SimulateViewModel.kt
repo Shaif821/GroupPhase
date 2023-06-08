@@ -1,5 +1,6 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
@@ -74,6 +75,8 @@ class SimulateViewModel @Inject constructor(
                         result,
                         match
                     )
+
+                    Log.d("SimulateViewModel", "what event?: $isFinished")
 
                     _state.value = state.value.copy(
                         isLoading = false,
@@ -170,7 +173,7 @@ class SimulateViewModel @Inject constructor(
                 }
             }
         }
-
+        Log.d("SimulateViewModel", "countedPlayedMatches: $countedPlayedMatches")
         return countedPlayedMatches == 6
     }
 

@@ -116,7 +116,6 @@ fun SimulateScreen(
                             Text(text = calculateText)
                         }
                     }
-
                     SimulationEvent.SAVED_SIMULATION -> {
                         Button(
                             onClick = { onNavigateResult(null) },
@@ -127,7 +126,6 @@ fun SimulateScreen(
                             Text(text = "Simulation is saved! Check the scores")
                         }
                     }
-
                     else -> {
                         Text(
                             text = state.error,
