@@ -30,6 +30,7 @@ class SimulateMatchUseCase @Inject constructor() {
                 away = match.away.copy(second = playedMatch[1].second),
                 played = true
             )
+            Log.d("SimulateMatchUseCase", "Match: ${updatedMatch.home.first.name} ---- ${updatedMatch.away.first.name} score ${updatedMatch.home.second} - ${updatedMatch.away.second}")
             emit(Resource.Success(updatedMatch))
         } catch (e: Exception) {
             emit(Resource.Error("An error occurred while simlating the match: ${e.message}"))

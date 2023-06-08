@@ -50,6 +50,11 @@ object Helpers {
                 updatedRounds[currentRoundIndex] = currentRound.copy(match = currentMatchList)
             }
         }
+
+        if(result.data != null) {
+            Log.d("Helpers", "Match: ${result.data.home.first.name} ---- ${result.data.away.first.name} score ${result.data.home.second} - ${result.data.away.second}")
+        }
+
         return updatedRounds
     }
 }
