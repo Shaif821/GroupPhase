@@ -42,7 +42,6 @@ class SimulateViewModel @Inject constructor(
                         rounds = result.data ?: listOf(),
                         simulationEvent = SimulationEvent.DETERMINE_MATCHES
                     )
-
                 }
 
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -56,25 +55,37 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun startMatch(match: Match) {
+    fun startMatch(match: Match, currentRoundIndex: Int, currentMatchIndex: Int) {
         // Get the current round and match
-        val rounds = state.value.rounds.toMutableList()
-        val currentRoundIndex = state.value.currentRound
-
         // Get the index of the match. This will be used to update the match later on
         _state.value = state.value.copy(isLoading = true)
-
-        simulateMatchUseCase(match, rounds, currentRoundIndex).onEach { result ->
+        simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     // index ends at 2
-                    val newIndex = if (currentRoundIndex == 2) 2 else currentRoundIndex + 1
-                    val isFinished =
-                        if (canShowResult()) SimulationEvent.MATCH_FINISHED else SimulationEvent.SIMULATE_MATCH
+                    val newIndex = if (currentRoundIndex == 2) {
+                        2
+                    } else {
+                        currentRoundIndex + 1
+                    }
+                    val isFinished = if (canShowResult()) {
+                        SimulationEvent.MATCH_FINISHED
+                    } else {
+                        SimulationEvent.SIMULATE_MATCH
+                    }
+
+                    val rounds = state.value.rounds.toMutableList()
+
+                    rounds[currentRoundIndex] = rounds[currentRoundIndex].copy(
+                        match = rounds[currentRoundIndex].match.toMutableList().apply {
+                            set(currentMatchIndex, result.data ?: match)
+                        }
+                    )
+
                     _state.value = state.value.copy(
                         isLoading = false,
                         success = true,
-                        rounds = result.data ?: rounds,
+                        rounds = rounds,
                         currentRound = newIndex,
                         simulationEvent = isFinished
                     )
@@ -113,11 +124,13 @@ class SimulateViewModel @Inject constructor(
                     )
                     insertSimulation()
                 }
+
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
                         isLoading = false,
-                        error = result.message ?: "Something went wrong while calculating the results..."
+                        error = result.message
+                            ?: "Something went wrong while calculating the results..."
                     )
                 }
             }
@@ -140,11 +153,13 @@ class SimulateViewModel @Inject constructor(
                         simulationEvent = SimulationEvent.SAVED_SIMULATION
                     )
                 }
+
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
                         isLoading = false,
-                        error = result.message ?: "Something went wrong while inserting the simulation..."
+                        error = result.message
+                            ?: "Something went wrong while inserting the simulation..."
                     )
                 }
             }

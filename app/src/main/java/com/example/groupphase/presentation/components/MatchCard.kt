@@ -22,13 +22,15 @@ import com.example.groupphase.domain.model.Match
 
 @Composable
 fun MatchCard(
+    currentRoundIndex: Int,
+    currentMatchIndex: Int,
     match: Match,
     teamName: (match: Match, sort: Boolean) -> String,
-    statMatch: (Match) -> Unit,
+    statMatch: (Match, Int, Int) -> Unit,
 ) {
 
     LaunchedEffect(match) {
-        statMatch(match)
+//        statMatch(match, currentMatchIndex, currentRoundIndex)
     }
 
     val homeName =  teamName(match, true).uppercase()

@@ -93,8 +93,10 @@ fun SimulateScreen(
                         fontSize = 24.sp,
                         modifier = Modifier.padding(top = 32.dp)
                     )
-                    round.match.forEach {
+                    round.match.forEachIndexed { matchIndex, it ->
                         MatchCard(
+                            index,
+                            matchIndex,
                             match = it,
                             viewModel::setTeamName,
                             viewModel::startMatch

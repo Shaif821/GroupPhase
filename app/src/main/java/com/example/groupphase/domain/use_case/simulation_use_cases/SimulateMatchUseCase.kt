@@ -15,39 +15,25 @@ import kotlin.random.Random
 // Determine the order which the teams will play against eah other. A total of 3 rounds will be played
 class SimulateMatchUseCase @Inject constructor() {
     operator fun invoke(
-        match: Match, rounds: List<Round>,
-        roundIndex: Int
-    ): Flow<Resource<List<Round>>> = flow {
+        match: Match,
+    ): Flow<Resource<Match>> = flow {
 
         try {
             emit(Resource.Loading())
 
-            val roundsCopy = rounds.toMutableList()
+            // randomize total goals, but keep it within a range of 0 and 6
+            val totalGoals = Random.nextInt(1, 6)
 
-            val currentRound = rounds[roundIndex]
-            val matchIndex = currentRound.match.indexOfFirst { !it.played }
+            val playedMatch = calculateScore(totalGoals, match.home, match.away)
 
-            if (matchIndex != -1) {
-                val updatedMatchList = currentRound.match.toMutableList()
-
-                // randomize total goals, but keep it within a range of 0 and 6
-                val totalGoals = Random.nextInt(1, 6)
-
-                val playedMatch = calculateScore(totalGoals, match.home, match.away)
-
-                updatedMatchList[matchIndex] = match.copy(
-                    home = match.home.copy(second = playedMatch[0].second),
-                    away = match.away.copy(second = playedMatch[1].second),
-                    played = true
-                )
-
-                val updatedRound = currentRound.copy(match = updatedMatchList)
-                roundsCopy[roundIndex] = updatedRound
-
-                emit(Resource.Success(roundsCopy.toList()))
-            }
+            val updatedMatch = match.copy(
+                home = match.home.copy(second = playedMatch[0].second),
+                away = match.away.copy(second = playedMatch[1].second),
+                played = true
+            )
+            emit(Resource.Success(updatedMatch))
         } catch (e: Exception) {
-            emit(Resource.Error("The following error occurred while simulating the match $roundIndex: ${e.message}"))
+            emit(Resource.Error("The following error occurred while simulating the match: ${e.message}"))
         }
     }
 
