@@ -37,7 +37,7 @@ class SimulateViewModel @Inject constructor(
     val button = _button.asStateFlow()
 
     private val _playedMatches = MutableStateFlow<List<Match>>(emptyList())
-    val playedMatches = _playedMatches.asStateFlow()
+    private val playedMatches = _playedMatches.asStateFlow()
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -57,14 +57,6 @@ class SimulateViewModel @Inject constructor(
                 _button.value = button.value.copy(
                     isEnabled = false,
                     message = "Simulating match..",
-                )
-            }
-
-            SimulationEvent.CALCULATE_RESULTS -> {
-                _button.value = button.value.copy(
-                    isEnabled = false,
-                    message = "Calculating results...",
-                    method = calculateResults()
                 )
             }
             else -> {
@@ -114,10 +106,10 @@ class SimulateViewModel @Inject constructor(
                 is Resource.Success -> {
                     if (result.data != null) {
                         _playedMatches.value = playedMatches.value + result.data
+                        Log.d("SimulateViewModel", "Played matches: ${playedMatches.value.size}")
                         isAllMatchesPlayed()
                     }
                 }
-
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -135,7 +127,7 @@ class SimulateViewModel @Inject constructor(
                 isLoading = false,
                 success = true,
                 rounds = Helpers.updateMatchInRounds(playedMatches.value),
-                simulationEvent = SimulationEvent.MATCH_FINISHED
+                simulationEvent = SimulationEvent.CALCULATE_RESULTS
             )
 
             _button.value = button.value.copy(

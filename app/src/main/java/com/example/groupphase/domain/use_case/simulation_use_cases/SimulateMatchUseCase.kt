@@ -19,14 +19,14 @@ class SimulateMatchUseCase @Inject constructor() {
             // randomize total goals, but keep it within a range of 0 and 6
             val totalGoals = Random.nextInt(1, 6)
 
-//            val playedMatch = calculateScore(totalGoals, match.home, match.away)
-//
-//            val updatedMatch = match.copy(
-//                home = match.home.copy(second = playedMatch[0].second),
-//                away = match.away.copy(second = playedMatch[1].second),
-//                played = true
-//            )
-            emit(Resource.Success(match))
+            val playedMatch = calculateScore(totalGoals, match.home, match.away)
+
+            val updatedMatch = match.copy(
+                home = match.home.copy(second = playedMatch[0].second),
+                away = match.away.copy(second = playedMatch[1].second),
+                played = true
+            )
+            emit(Resource.Success(updatedMatch))
         } catch (e: Exception) {
             emit(Resource.Error("An error occurred while simlating the match: ${e.message}"))
         }

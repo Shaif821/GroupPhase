@@ -35,19 +35,21 @@ object Helpers {
         matches: List<Match>
     ): List<Round> {
         val updatedRounds = mutableListOf<Round>()
+        val matchTemp = matches.toMutableList()
 
-        val roundsCount = 2
-        val matchesPerRound = matches.size / roundsCount
+        for (i in 0..2) {
+            val matchList = mutableListOf<Match>()
 
-        for (i in 0..roundsCount) {
-            val round = Round(
-                match = matches.subList(i * matchesPerRound, (i) * matchesPerRound),
-                date = LocalDate.now()
-            )
-            updatedRounds.add(round)
+            for (j in 0..1) {
+                if (matchTemp.isNotEmpty()) {
+                    matchList.add(matchTemp.removeAt(0))
+                }
+            }
+            updatedRounds.add(Round(matchList, LocalDate.now()))
         }
         return updatedRounds
     }
+
 
     fun formatLocalDate(localDate: LocalDate): String {
         val formatter = DateTimeFormatter.ofPattern("d/M/yy")

@@ -38,7 +38,7 @@ fun SimulateScreen(
 ) {
     val teams = startViewModel.state.collectAsState().value
     val state = viewModel.state.collectAsState().value
-    val rounds = state.rounds.toMutableList()
+    val rounds = state.rounds
 
     val buttonState by viewModel.button.collectAsState()
 
@@ -104,7 +104,6 @@ fun SimulateScreen(
                     Text(text = buttonState.message)
                 }
             }
-            Text(state.simulationEvent.toString())
         }
     }
 }
