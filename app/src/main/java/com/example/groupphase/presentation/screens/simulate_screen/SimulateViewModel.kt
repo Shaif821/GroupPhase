@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
-import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
 import com.example.groupphase.domain.use_case.simulation_use_cases.CalculateResultsUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
@@ -14,12 +13,9 @@ import com.example.groupphase.utils.Helpers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -63,6 +59,8 @@ class SimulateViewModel @Inject constructor(
     fun startMatch(match: Match, currentRoundIndex: Int, currentMatchIndex: Int) {
         _state.value = state.value.copy(isLoading = true)
 
+        if(checkSimulationEvent() == SimulationEvent.CALCULATE_RESULTS) return
+
         simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
@@ -78,7 +76,7 @@ class SimulateViewModel @Inject constructor(
                         success = true,
                         rounds = updatedRounds,
                         currentRound = currentRoundIndex,
-                        simulationEvent = checkSimulationEvent().first()
+                        simulationEvent = checkSimulationEvent()
                     )
                 }
 
@@ -116,6 +114,7 @@ class SimulateViewModel @Inject constructor(
                     )
                     insertSimulation()
                 }
+
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -158,21 +157,21 @@ class SimulateViewModel @Inject constructor(
     }
 
 
-    private fun checkSimulationEvent(): Flow<SimulationEvent> = flow {
-        state.collect { state ->
-            var played = 0
+    private fun checkSimulationEvent(): SimulationEvent {
+        var played = 2
 
-            state.rounds.forEach { round ->
-                round.match.forEach { match ->
-                    if (match.played) played++
-                }
+        state.value.rounds.forEach { round ->
+            round.match.forEach { match ->
+                if (match.played) played++
             }
+        }
 
-            if (played == 5) {
-                emit(SimulationEvent.MATCH_FINISHED)
-            } else {
-                emit(SimulationEvent.SIMULATE_MATCH)
-            }
+        Log.d("SimulateViewModel", "Played: $played")
+
+        return if (played > 6) {
+            SimulationEvent.CALCULATE_RESULTS
+        } else {
+            SimulationEvent.SIMULATE_MATCH
         }
     }
 

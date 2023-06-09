@@ -10,7 +10,7 @@ import com.example.groupphase.domain.model.Player
 import com.example.groupphase.domain.model.Simulation
 import com.example.groupphase.domain.model.Team
 
-@Database(entities = [Simulation::class, Player::class, Team::class], version = 12, exportSchema = false)
+@Database(entities = [Simulation::class, Player::class, Team::class], version = 13, exportSchema = false)
 @TypeConverters(TypeConverter::class)
 abstract class AppRoomDatabase : RoomDatabase() {
 

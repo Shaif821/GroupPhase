@@ -1,6 +1,5 @@
 package com.example.groupphase.presentation.components
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,16 +23,8 @@ import com.example.groupphase.utils.Helpers
 
 @Composable
 fun MatchCard(
-    currentRoundIndex: Int,
-    currentMatchIndex: Int,
     match: Match,
-    statMatch: (Match, Int, Int) -> Unit,
 ) {
-
-    LaunchedEffect(Unit) {
-        if (!match.played) statMatch(match, currentRoundIndex, currentMatchIndex)
-    }
-
     val homeName = Helpers.setTeamName(match, true).uppercase()
     val awayName = Helpers.setTeamName(match, false).uppercase()
 
@@ -43,7 +34,6 @@ fun MatchCard(
         modifier = Modifier
             .padding(12.dp)
             .height(IntrinsicSize.Min)
-            .animateContentSize()
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),

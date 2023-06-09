@@ -1,6 +1,5 @@
 package com.example.groupphase.presentation.screens.simulate_screen
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,10 +41,6 @@ fun SimulateScreen(
 
     val isLoading = state.isLoading
     val event = state.simulationEvent
-
-    val calculateText = if (!isLoading && event == SimulationEvent.CALCULATE_RESULTS) {
-        "Matches is progress."
-    } else "Calculate scores"
 
     LaunchedEffect(teams.teams) {
         if (teams.teams.isNotEmpty()) {
@@ -89,19 +84,19 @@ fun SimulateScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (rounds.isNotEmpty()) {
-                rounds.forEachIndexed { index, round ->
+                rounds.forEachIndexed { currentRoundIndex, round ->
                     Text(
-                        text = "Round #${index + 1}",
+                        text = "Round #${currentRoundIndex + 1}",
                         fontSize = 24.sp,
                         modifier = Modifier.padding(top = 32.dp)
                     )
                     round.match.forEachIndexed { matchIndex, it ->
-                        MatchCard(
-                            index,
-                            matchIndex,
-                            match = it,
-                            viewModel::startMatch
-                        )
+                        viewModel.startMatch(it, currentRoundIndex, currentMatchIndex = matchIndex)
+                        if(it.played) {
+                            MatchCard(
+                                match = it,
+                            )
+                        }
                     }
                 }
                 when (event) {
@@ -113,7 +108,7 @@ fun SimulateScreen(
                                 .padding(32.dp)
                                 .height(48.dp),
                         ) {
-                            Text(text = calculateText)
+                            Text(text = "Calculate scores")
                         }
                     }
                     SimulationEvent.SAVED_SIMULATION -> {
@@ -134,12 +129,6 @@ fun SimulateScreen(
                         )
                     }
                 }
-            } else {
-                Text(
-                    text = "No matches",
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(top = 32.dp)
-                )
             }
         }
     }
