@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.groupphase.common.Resource
 import com.example.groupphase.domain.model.Match
+import com.example.groupphase.domain.model.Round
 import com.example.groupphase.domain.model.Team
 import com.example.groupphase.domain.use_case.simulation_use_cases.CalculateResultsUseCase
 import com.example.groupphase.domain.use_case.simulation_use_cases.DetermineMatchesOrderUseCase
@@ -13,11 +14,13 @@ import com.example.groupphase.utils.Helpers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,9 +33,50 @@ class SimulateViewModel @Inject constructor(
     private val _state = MutableStateFlow(SimulationState())
     val state = _state.asStateFlow()
 
+    private val _button = MutableStateFlow(ButtonState())
+    val button = _button.asStateFlow()
+
+    private val _playedMatches = MutableStateFlow<List<Match>>(emptyList())
+    val playedMatches = _playedMatches.asStateFlow()
+
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    fun determineMatches() {
+    fun setup(teams: List<Team>) {
+        setTeams(teams)
+
+        when (state.value.simulationEvent) {
+            SimulationEvent.DETERMINE_MATCHES -> {
+                _button.value = button.value.copy(
+                    isEnabled = false,
+                    message = "Determining matches.."
+                )
+                determineMatches()
+            }
+
+            SimulationEvent.SIMULATE_MATCH -> {
+                _button.value = button.value.copy(
+                    isEnabled = false,
+                    message = "Simulating match..",
+                )
+            }
+
+            SimulationEvent.CALCULATE_RESULTS -> {
+                _button.value = button.value.copy(
+                    isEnabled = false,
+                    message = "Calculating results...",
+                    method = calculateResults()
+                )
+            }
+            else -> {
+                _button.value = button.value.copy(
+                    isEnabled = false,
+                    message = "Something went wrong.."
+                )
+            }
+        }
+    }
+
+    private fun determineMatches() {
         _state.value = state.value.copy(isLoading = true)
         determineMatchesOrderUseCase(state.value.teams).onEach { result ->
             when (result) {
@@ -41,8 +85,14 @@ class SimulateViewModel @Inject constructor(
                         isLoading = false,
                         success = true,
                         rounds = result.data ?: listOf(),
-                        simulationEvent = SimulationEvent.DETERMINE_MATCHES
+                        simulationEvent = SimulationEvent.SIMULATE_MATCH
                     )
+
+                    state.value.rounds.forEach { round ->
+                        round.match.forEach { match ->
+                            startMatch(match)
+                        }
+                    }
                 }
 
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -56,26 +106,16 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(ioScope)
     }
 
-    fun startMatch(match: Match, currentRoundIndex: Int, currentMatchIndex: Int) {
+    private fun startMatch(match: Match) {
         _state.value = state.value.copy(isLoading = true)
 
         simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    val updatedRounds = Helpers.updateMatchInRounds(
-                        state.value.rounds,
-                        currentRoundIndex,
-                        currentMatchIndex,
-                        result,
-                        match
-                    )
-                    _state.value = state.value.copy(
-                        isLoading = false,
-                        success = true,
-                        rounds = updatedRounds,
-                        currentRound = currentRoundIndex,
-                    )
-                    checkSimulationEvent()
+                    if (result.data != null) {
+                        _playedMatches.value = playedMatches.value + result.data
+                        isAllMatchesPlayed()
+                    }
                 }
 
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -89,8 +129,24 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(ioScope)
     }
 
+    private fun isAllMatchesPlayed() {
+        if (playedMatches.value.size == 6) {
+            _state.value = state.value.copy(
+                isLoading = false,
+                success = true,
+                rounds = Helpers.updateMatchInRounds(playedMatches.value),
+                simulationEvent = SimulationEvent.MATCH_FINISHED
+            )
 
-    fun calculateResults() {
+            _button.value = button.value.copy(
+                isEnabled = true,
+                message = "Calculate scores!",
+                method = calculateResults()
+            )
+        }
+    }
+
+    private fun calculateResults() {
         _state.value = state.value.copy(isLoading = true)
 
         // Get all teams but only once
@@ -110,8 +166,9 @@ class SimulateViewModel @Inject constructor(
                         ),
                         simulationEvent = SimulationEvent.CALCULATE_RESULTS
                     )
-//                    insertSimulation()
+                    insertSimulation()
                 }
+
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -139,6 +196,12 @@ class SimulateViewModel @Inject constructor(
                         simulation = simulation,
                         simulationEvent = SimulationEvent.SAVED_SIMULATION
                     )
+
+                    _button.value = button.value.copy(
+                        isEnabled = true,
+                        message = "Simulation saved! Go back.",
+                        method = Unit
+                    )
                 }
 
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -153,33 +216,9 @@ class SimulateViewModel @Inject constructor(
         }.launchIn(ioScope)
     }
 
-
-    private fun checkSimulationEvent() {
-        var played = 0
-
-        state.value.rounds.forEach { round ->
-            round.match.forEach { match ->
-                if (match.played) played++
-            }
-        }
-
-        val simEvent =
-            if (played == 6) SimulationEvent.MATCH_FINISHED else SimulationEvent.SIMULATE_MATCH
-
-        _state.value = state.value.copy(
-            simulationEvent = simEvent
-        )
-    }
-
-    fun setTeams(teams: List<Team>) {
+    private fun setTeams(teams: List<Team>) {
         _state.value = state.value.copy(
             teams = teams
-        )
-    }
-
-    fun setCurrentRound(round: Int) {
-        _state.value = state.value.copy(
-            currentRound = round
         )
     }
 }

@@ -32,26 +32,20 @@ object Helpers {
     }
 
     fun updateMatchInRounds(
-        rounds: List<Round>,
-        currentRoundIndex: Int,
-        currentMatchIndex: Int,
-        result: Resource.Success<Match>,
-        match: Match
+        matches: List<Match>
     ): List<Round> {
-        val updatedRounds = rounds.toMutableList()
+        val updatedRounds = mutableListOf<Round>()
 
-        // Check if currentRoundIndex is within bounds
-        if (currentRoundIndex < updatedRounds.size) {
-            val currentRound = updatedRounds[currentRoundIndex]
-            val currentMatchList = currentRound.match.toMutableList()
+        val roundsCount = 2
+        val matchesPerRound = matches.size / roundsCount
 
-            // Check if currentMatchIndex is within bounds
-            if (currentMatchIndex < currentMatchList.size) {
-                currentMatchList[currentMatchIndex] = result.data ?: match
-                updatedRounds[currentRoundIndex] = currentRound.copy(match = currentMatchList)
-            }
+        for (i in 0..roundsCount) {
+            val round = Round(
+                match = matches.subList(i * matchesPerRound, (i) * matchesPerRound),
+                date = LocalDate.now()
+            )
+            updatedRounds.add(round)
         }
-
         return updatedRounds
     }
 

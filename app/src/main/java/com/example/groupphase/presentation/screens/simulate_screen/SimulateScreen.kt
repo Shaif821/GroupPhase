@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,14 +40,11 @@ fun SimulateScreen(
     val state = viewModel.state.collectAsState().value
     val rounds = state.rounds.toMutableList()
 
-    val isLoading = state.isLoading
-    val event = state.simulationEvent
+    val buttonState by viewModel.button.collectAsState()
 
     LaunchedEffect(teams.teams) {
         if (teams.teams.isNotEmpty()) {
-            viewModel.setTeams(teams.teams)
-            viewModel.setCurrentRound(0)
-            viewModel.determineMatches()
+            viewModel.setup(teams.teams)
         }
     }
 
@@ -90,56 +88,23 @@ fun SimulateScreen(
                         fontSize = 24.sp,
                         modifier = Modifier.padding(top = 32.dp)
                     )
-                    round.match.forEachIndexed { matchIndex, it ->
-                        if (state.simulationEvent !== SimulationEvent.MATCH_FINISHED
-                            && state.simulationEvent !== SimulationEvent.CALCULATE_RESULTS) {
-                            viewModel.startMatch(
-                                it,
-                                currentRoundIndex,
-                                currentMatchIndex = matchIndex
-                            )
-                        }
-
+                    round.match.forEach {
                         MatchCard(
                             match = it,
                         )
                     }
                 }
-                when (event) {
-                    SimulationEvent.MATCH_FINISHED -> {
-                        Button(
-                            enabled = !isLoading,
-                            onClick = { viewModel.calculateResults() },
-                            modifier = Modifier
-                                .padding(32.dp)
-                                .height(48.dp),
-                        ) {
-                            Text(text = "Calculate scores")
-                        }
-                    }
-
-                    SimulationEvent.CALCULATE_RESULTS -> {
-                        Text(text = "Calculating scores...")
-                    }
-                    SimulationEvent.SAVED_SIMULATION -> {
-                        Button(
-                            onClick = { onNavigateResult(null) },
-                            modifier = Modifier
-                                .padding(32.dp)
-                                .height(48.dp),
-                        ) {
-                            Text(text = "Simulation is saved! Check the scores")
-                        }
-                    }
-                    else -> {
-                        Text(
-                            text = state.error,
-                            fontSize = 24.sp,
-                            modifier = Modifier.padding(top = 32.dp)
-                        )
-                    }
+                Button(
+                    enabled = buttonState.isEnabled,
+                    onClick = { buttonState.method },
+                    modifier = Modifier
+                        .padding(32.dp)
+                        .height(48.dp),
+                ) {
+                    Text(text = buttonState.message)
                 }
             }
+            Text(state.simulationEvent.toString())
         }
     }
 }
