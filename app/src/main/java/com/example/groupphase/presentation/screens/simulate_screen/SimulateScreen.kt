@@ -91,12 +91,18 @@ fun SimulateScreen(
                         modifier = Modifier.padding(top = 32.dp)
                     )
                     round.match.forEachIndexed { matchIndex, it ->
-                        viewModel.startMatch(it, currentRoundIndex, currentMatchIndex = matchIndex)
-                        if(it.played) {
-                            MatchCard(
-                                match = it,
+                        if (state.simulationEvent !== SimulationEvent.MATCH_FINISHED
+                            && state.simulationEvent !== SimulationEvent.CALCULATE_RESULTS) {
+                            viewModel.startMatch(
+                                it,
+                                currentRoundIndex,
+                                currentMatchIndex = matchIndex
                             )
                         }
+
+                        MatchCard(
+                            match = it,
+                        )
                     }
                 }
                 when (event) {
@@ -110,6 +116,10 @@ fun SimulateScreen(
                         ) {
                             Text(text = "Calculate scores")
                         }
+                    }
+
+                    SimulationEvent.CALCULATE_RESULTS -> {
+                        Text(text = "Calculating scores...")
                     }
                     SimulationEvent.SAVED_SIMULATION -> {
                         Button(

@@ -59,8 +59,6 @@ class SimulateViewModel @Inject constructor(
     fun startMatch(match: Match, currentRoundIndex: Int, currentMatchIndex: Int) {
         _state.value = state.value.copy(isLoading = true)
 
-        if(checkSimulationEvent() == SimulationEvent.CALCULATE_RESULTS) return
-
         simulateMatchUseCase(match).onEach { result ->
             when (result) {
                 is Resource.Success -> {
@@ -76,8 +74,8 @@ class SimulateViewModel @Inject constructor(
                         success = true,
                         rounds = updatedRounds,
                         currentRound = currentRoundIndex,
-                        simulationEvent = checkSimulationEvent()
                     )
+                    checkSimulationEvent()
                 }
 
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
@@ -112,9 +110,8 @@ class SimulateViewModel @Inject constructor(
                         ),
                         simulationEvent = SimulationEvent.CALCULATE_RESULTS
                     )
-                    insertSimulation()
+//                    insertSimulation()
                 }
-
                 is Resource.Loading -> _state.value = state.value.copy(isLoading = true)
                 is Resource.Error -> {
                     _state.value = state.value.copy(
@@ -157,8 +154,8 @@ class SimulateViewModel @Inject constructor(
     }
 
 
-    private fun checkSimulationEvent(): SimulationEvent {
-        var played = 2
+    private fun checkSimulationEvent() {
+        var played = 0
 
         state.value.rounds.forEach { round ->
             round.match.forEach { match ->
@@ -166,13 +163,12 @@ class SimulateViewModel @Inject constructor(
             }
         }
 
-        Log.d("SimulateViewModel", "Played: $played")
+        val simEvent =
+            if (played == 6) SimulationEvent.MATCH_FINISHED else SimulationEvent.SIMULATE_MATCH
 
-        return if (played > 6) {
-            SimulationEvent.CALCULATE_RESULTS
-        } else {
-            SimulationEvent.SIMULATE_MATCH
-        }
+        _state.value = state.value.copy(
+            simulationEvent = simEvent
+        )
     }
 
     fun setTeams(teams: List<Team>) {
