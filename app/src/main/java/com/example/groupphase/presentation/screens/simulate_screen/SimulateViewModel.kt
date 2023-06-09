@@ -42,6 +42,7 @@ class SimulateViewModel @Inject constructor(
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     fun setup(teams: List<Team>) {
+        Log.d("SimulateViewModel", "setup: YOOYOO")
         setTeams(teams)
 
         when (state.value.simulationEvent) {

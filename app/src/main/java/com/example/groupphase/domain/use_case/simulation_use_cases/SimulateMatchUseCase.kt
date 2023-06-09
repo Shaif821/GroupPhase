@@ -38,8 +38,8 @@ class SimulateMatchUseCase @Inject constructor() {
         away: Pair<Team, Int>
     ): List<Pair<Team, Int>> {
         // based on the total goals, the team with the highest strength will get the most goals
-        val homeStrength = (calculateTotalStrength(home.first) * 10)
-        val awayStrength = (calculateTotalStrength(away.first) * 10)
+        val homeStrength = calculateTotalStrength(home.first)
+        val awayStrength = calculateTotalStrength(away.first)
 
         var homeGoals = 0
         var awayGoals = 0

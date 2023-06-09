@@ -51,7 +51,7 @@ fun StartScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.teams.isNotEmpty()) {
-                val teams = state.teams // Lokale variabele voor stabiele teams
+                val teams = state.teams
                 teams.forEach { team ->
                     TeamCard(team, Helpers.calculateTotalStrength(team))
                 }
